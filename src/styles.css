@@ -1,0 +1,328 @@
+/*
+ * Tailwind v4 entry: config lives here, with no tailwind.config.js or PostCSS plugin.
+ * - Keep every @import in this top block, above @theme and the rest of the file. Install an
+ *   npm package before @importing its CSS. Never @import a remote URL (web fonts, CDN CSS): the
+ *   build resolves @import from the filesystem. Load those with a <link> in the head() of
+ *   src/routes/__root.tsx and name the family in a --font-* token in @theme inline below.
+ */
+@import "tailwindcss" source(none);
+@source "../src";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+/*
+ * Design system definition.
+ *
+ * The design lives in this file: oklch color tokens on the shadcn variables
+ * (--background, --foreground, --primary, --secondary, --muted, --accent, ...) plus
+ * new tokens as needed, font tokens, and custom styles and animations.
+ *
+ * The @theme inline block maps CSS custom properties to Tailwind utility
+ * classes (e.g. --color-primary -> bg-primary, text-primary).
+ *
+ * The :root and .dark blocks define the actual color values using oklch.
+ * All colors MUST use oklch format.
+ *
+ * To add a new semantic color:
+ * 1. Add the variable to :root (light value) and .dark (dark value)
+ * 2. Register it in @theme inline as --color-<name>: var(--<name>)
+ */
+
+@theme inline {
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --radius-2xl: calc(var(--radius) + 8px);
+  --radius-3xl: calc(var(--radius) + 12px);
+  --radius-4xl: calc(var(--radius) + 16px);
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-ring-offset-background: var(--background);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+  --color-gold: var(--gold);
+  --color-gold-foreground: var(--gold-foreground);
+  --color-nav: var(--nav);
+  --color-nav-scrolled: var(--nav-scrolled);
+  --color-nav-foreground: var(--nav-foreground);
+  --color-nav-muted: var(--nav-muted);
+  --color-dropdown: var(--dropdown);
+  --color-dropdown-foreground: var(--dropdown-foreground);
+  --color-dropdown-muted: var(--dropdown-muted);
+  --color-dropdown-hover: var(--dropdown-hover);
+  --color-dropdown-icon: var(--dropdown-icon);
+  --color-deep: var(--deep);
+  --color-deep-foreground: var(--deep-foreground);
+  --color-deep-muted: var(--deep-muted);
+  --color-deep-border: var(--deep-border);
+  --color-terracotta: var(--terracotta);
+  --color-terracotta-hover: var(--terracotta-hover);
+  --color-terracotta-deep: var(--terracotta-deep);
+  --font-display: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --font-sans: "Figtree", ui-sans-serif, system-ui, sans-serif;
+  --shadow-dropdown: var(--shadow-dropdown);
+  --shadow-cta: var(--shadow-cta);
+}
+
+:root {
+  --radius: 0.75rem;
+  color-scheme: light;
+  --background: oklch(0.975 0.012 85);
+  --foreground: oklch(0.22 0.035 165);
+  --card: oklch(0.99 0.006 85);
+  --card-foreground: oklch(0.22 0.035 165);
+  --popover: oklch(0.99 0.006 85);
+  --popover-foreground: oklch(0.22 0.035 165);
+  --primary: oklch(0.4 0.08 162);
+  --primary-foreground: oklch(0.975 0.012 85);
+  --secondary: oklch(0.93 0.025 120);
+  --secondary-foreground: oklch(0.28 0.06 162);
+  --muted: oklch(0.94 0.015 85);
+  --muted-foreground: oklch(0.48 0.03 160);
+  --accent: oklch(0.62 0.15 42);
+  --accent-foreground: oklch(0.985 0.01 85);
+  --destructive: oklch(0.577 0.245 27.325);
+  --destructive-foreground: oklch(0.984 0.003 247.858);
+  --border: oklch(0.89 0.02 100);
+  --input: oklch(0.89 0.02 100);
+  --ring: oklch(0.62 0.15 42);
+  --chart-1: oklch(0.4 0.08 162);
+  --chart-2: oklch(0.62 0.15 42);
+  --chart-3: oklch(0.8 0.12 80);
+  --chart-4: oklch(0.55 0.09 140);
+  --chart-5: oklch(0.7 0.1 60);
+  --sidebar: oklch(0.975 0.012 85);
+  --sidebar-foreground: oklch(0.22 0.035 165);
+  --sidebar-primary: oklch(0.4 0.08 162);
+  --sidebar-primary-foreground: oklch(0.975 0.012 85);
+  --sidebar-accent: oklch(0.93 0.025 120);
+  --sidebar-accent-foreground: oklch(0.28 0.06 162);
+  --sidebar-border: oklch(0.89 0.02 100);
+  --sidebar-ring: oklch(0.62 0.15 42);
+
+  /* Pesantren brand tokens */
+  --gold: oklch(0.82 0.12 82);
+  --gold-foreground: oklch(0.22 0.04 70);
+  --nav: oklch(0.17 0.03 165 / 0.55);
+  --nav-scrolled: oklch(0.15 0.03 165 / 0.85);
+  --nav-foreground: oklch(0.97 0.012 85);
+  --nav-muted: oklch(0.82 0.02 120);
+  --dropdown: oklch(0.27 0.06 162);
+  --dropdown-foreground: oklch(0.97 0.012 85);
+  --dropdown-muted: oklch(0.8 0.03 140);
+  --dropdown-hover: oklch(0.33 0.07 162);
+  --dropdown-icon: oklch(0.36 0.07 160);
+  --deep: oklch(0.21 0.045 163);
+  --deep-foreground: oklch(0.97 0.012 85);
+  --deep-muted: oklch(0.78 0.03 140);
+  --deep-border: oklch(0.32 0.05 162);
+  --terracotta: oklch(0.55 0.14 40);
+  --terracotta-hover: oklch(0.6 0.14 40);
+  --terracotta-deep: oklch(0.47 0.13 38);
+  --hero-overlay: linear-gradient(
+    100deg,
+    oklch(0.14 0.03 165 / 0.72) 0%,
+    oklch(0.16 0.04 165 / 0.42) 45%,
+    oklch(0.18 0.05 40 / 0.1) 100%
+  );
+  --hero-fade: linear-gradient(to top, oklch(0.14 0.03 165 / 0.85), transparent);
+  --shadow-dropdown: 0 24px 48px -16px oklch(0.1 0.03 165 / 0.55), 0 2px 6px oklch(0.1 0.03 165 / 0.25);
+  --shadow-cta: 0 14px 32px -10px color-mix(in oklab, var(--accent) 65%, transparent);
+}
+
+/*
+ * Dark (night) theme. Diaktifkan saat <html> punya class "dark" — dikelola oleh
+ * ThemeToggle (src/components/site/ThemeToggle.tsx) + skrip init headless di
+ * src/routes/__root.tsx. Permukaan yang memang dirancang gelap (nav, dropdown,
+ * footer/deep, hero) tetap gelap; yang berubah adalah area konten.
+ */
+.dark {
+  color-scheme: dark;
+  --background: oklch(0.19 0.02 165);
+  --foreground: oklch(0.93 0.015 85);
+  --card: oklch(0.23 0.022 165);
+  --card-foreground: oklch(0.93 0.015 85);
+  --popover: oklch(0.23 0.03 165);
+  --popover-foreground: oklch(0.93 0.015 85);
+  --primary: oklch(0.46 0.09 162);
+  --primary-foreground: oklch(0.97 0.012 85);
+  --secondary: oklch(0.28 0.03 120);
+  --secondary-foreground: oklch(0.92 0.02 120);
+  --muted: oklch(0.25 0.02 165);
+  --muted-foreground: oklch(0.75 0.025 160);
+  --accent: oklch(0.64 0.15 42);
+  --accent-foreground: oklch(0.985 0.01 85);
+  --destructive: oklch(0.68 0.2 25);
+  --destructive-foreground: oklch(0.98 0.003 247.858);
+  --border: oklch(0.32 0.025 165);
+  --input: oklch(0.32 0.025 165);
+  --ring: oklch(0.7 0.14 40);
+  --chart-1: oklch(0.62 0.1 162);
+  --chart-2: oklch(0.68 0.14 42);
+  --chart-3: oklch(0.82 0.12 82);
+  --chart-4: oklch(0.66 0.09 140);
+  --chart-5: oklch(0.76 0.1 60);
+  --sidebar: oklch(0.21 0.02 165);
+  --sidebar-foreground: oklch(0.93 0.015 85);
+  --sidebar-primary: oklch(0.46 0.09 162);
+  --sidebar-primary-foreground: oklch(0.97 0.012 85);
+  --sidebar-accent: oklch(0.28 0.03 120);
+  --sidebar-accent-foreground: oklch(0.92 0.02 120);
+  --sidebar-border: oklch(0.32 0.025 165);
+  --sidebar-ring: oklch(0.7 0.14 40);
+
+  /* Pesantren brand tokens — dark overrides */
+  --gold: oklch(0.84 0.12 82);
+  --gold-foreground: oklch(0.22 0.04 70);
+  --nav: oklch(0.13 0.02 165 / 0.6);
+  --nav-scrolled: oklch(0.12 0.02 165 / 0.88);
+  --nav-foreground: oklch(0.97 0.012 85);
+  --nav-muted: oklch(0.84 0.02 120);
+  --dropdown: oklch(0.24 0.04 162);
+  --dropdown-foreground: oklch(0.97 0.012 85);
+  --dropdown-muted: oklch(0.82 0.03 140);
+  --dropdown-hover: oklch(0.3 0.05 162);
+  --dropdown-icon: oklch(0.34 0.06 160);
+  --deep: oklch(0.15 0.045 163);
+  --deep-foreground: oklch(0.97 0.012 85);
+  --deep-muted: oklch(0.78 0.03 140);
+  --deep-border: oklch(0.27 0.05 162);
+  --terracotta: oklch(0.6 0.14 40);
+  --terracotta-hover: oklch(0.66 0.14 40);
+  --terracotta-deep: oklch(0.42 0.13 38);
+  --hero-overlay: linear-gradient(
+    100deg,
+    oklch(0.12 0.03 165 / 0.78) 0%,
+    oklch(0.14 0.04 165 / 0.5) 45%,
+    oklch(0.16 0.05 40 / 0.15) 100%
+  );
+  --hero-fade: linear-gradient(to top, oklch(0.19 0.02 165 / 0.9), transparent);
+  --shadow-dropdown: 0 24px 48px -16px oklch(0.05 0.02 165 / 0.7), 0 2px 6px oklch(0.05 0.02 165 / 0.4);
+  --shadow-cta: 0 14px 32px -10px color-mix(in oklab, var(--accent) 75%, transparent);
+}
+
+@layer base {
+  * {
+    border-color: var(--color-border);
+  }
+
+  body {
+    background-color: var(--color-background);
+    color: var(--color-foreground);
+  }
+}
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+  body {
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3 {
+    font-family: var(--font-display);
+  }
+}
+
+@utility bg-hero-overlay {
+  background-image: var(--hero-overlay);
+}
+
+@utility bg-page-overlay {
+  background-image: linear-gradient(
+    to bottom,
+    oklch(0.15 0.035 165 / 0.88),
+    oklch(0.17 0.04 165 / 0.8) 60%,
+    oklch(0.19 0.045 163 / 0.94)
+  );
+}
+
+@utility eyebrow {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+}
+
+@utility text-glow {
+  text-shadow:
+    0 1px 10px rgb(15 23 42 / 0.6),
+    0 3px 26px rgb(15 23 42 / 0.5),
+    0 0 30px rgb(255 255 255 / 0.22);
+}
+
+@keyframes marquee {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@utility animate-marquee {
+  animation: marquee 38s linear infinite;
+}
+
+@utility ticker-fade {
+  scrollbar-width: none;
+  mask-image: linear-gradient(to right, transparent, black 4%, black 96%, transparent);
+}
+
+@utility bg-hero-fade {
+  background-image: var(--hero-fade);
+}
+
+@utility pattern-geometric {
+  background-image:
+    radial-gradient(circle at 50% 50%, color-mix(in oklab, var(--gold) 18%, transparent) 1.5px, transparent 1.6px);
+  background-size: 22px 22px;
+}
+
+@keyframes rise-in {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@utility animate-rise {
+  animation: rise-in 0.8s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
