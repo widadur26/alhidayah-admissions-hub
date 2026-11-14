@@ -1,4 +1,4 @@
-# Alhidayah Admissions Hub
+# PP Asasunnajaah
 
 Build a modern Pondok Pesantren website landing page using React, Tailwind CSS, and Lucide Icons.
 
@@ -6,7 +6,7 @@ Key Focus - Header Navigation:
 
 Create a sticky/fixed top navigation bar with a dark translucent background (backdrop-blur). The header layout should feature:
 
-- Brand Logo & Name ("Pondok Pesantren Al-Hidayah") on the left.
+- Brand Logo & Name ("PP Asasunnajaah") on the left.
 
 - Navigation Menu on the right with smooth dropdown cards on hover/click.
 
@@ -40,7 +40,7 @@ Make sure the navbar is fully responsive with a mobile hamburger menu drawer for
 
 This project was built with [Lovable](https://lovable.dev).
 
-**Live app**: https://alhidayah-admissions-hub.lovable.app
+**Live app**: https://pp-asasunnajaah.vercel.app
 
 ## Build with Lovable
 

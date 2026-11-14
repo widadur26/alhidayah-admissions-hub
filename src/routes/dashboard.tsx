@@ -1625,7 +1625,7 @@ function DashboardPage() {
             {tab === "kebutuhan" && <NeedsAdmin />}
 
             <p className="text-xs text-muted-foreground">
-              Konten disimpan di database MySQL (<code>alhidayah_admissions</code>); gambar disimpan di Vercel Blob
+              Konten disimpan di database MySQL; gambar disimpan di Vercel Blob
               saat deployment dan di <code>public/uploads</code> saat berjalan lokal.
             </p>
           </div>
