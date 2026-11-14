@@ -99,7 +99,7 @@ async function ensureSchema(pool: Pool): Promise<void> {
   await pool.query(`
     CREATE TABLE IF NOT EXISTS site_settings (
       name  VARCHAR(50) PRIMARY KEY,
-      value VARCHAR(500) NULL
+      value TEXT NULL
     )
   `);
   await pool.query(`
@@ -165,6 +165,25 @@ async function ensureSchema(pool: Pool): Promise<void> {
       CONSTRAINT fk_needs_user FOREIGN KEY (user_id) REFERENCES users (id) ON DELETE CASCADE
     )
   `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS page_gallery (
+      slot      TINYINT UNSIGNED PRIMARY KEY,
+      caption   VARCHAR(255) NOT NULL DEFAULT '',
+      image_url VARCHAR(500) NULL
+    )
+  `);
+  await pool.query(`
+    CREATE TABLE IF NOT EXISTS page_overrides (
+      section VARCHAR(40) NOT NULL,
+      slug    VARCHAR(60) NOT NULL,
+      title   VARCHAR(200) NOT NULL DEFAULT '',
+      summary VARCHAR(500) NOT NULL DEFAULT '',
+      blocks  MEDIUMTEXT NULL,
+      PRIMARY KEY (section, slug)
+    )
+  `);
+  // Peningkatan skema untuk database lama (aman diulang; gagal → diabaikan).
+  await pool.query("ALTER TABLE site_settings MODIFY COLUMN value TEXT NULL").catch(() => {});
   await seedStarterData(pool);
 }
 

@@ -3,12 +3,13 @@ import { Link, useLocation } from "@tanstack/react-router";
 import { ChevronDown, Facebook, Instagram, LogIn, Menu, MessageCircle, Phone, Youtube } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { SITE } from "@/content/site";
+import { useSiteSettings } from "@/lib/site-settings";
 import { Sheet, SheetContent, SheetTitle, SheetTrigger } from "@/components/ui/sheet";
 import { navItemsFor, type NavGroupItem } from "./nav-data";
 import { LogoMark } from "./LogoMark";
 
 function BrandMark({ compact = false }: { compact?: boolean }) {
+  const site = useSiteSettings();
   return (
     <Link to="/" className="group flex shrink-0 items-center gap-2.5 sm:gap-3">
       <LogoMark
@@ -24,10 +25,10 @@ function BrandMark({ compact = false }: { compact?: boolean }) {
             compact ? "text-lg" : "text-lg sm:text-xl 2xl:text-2xl",
           )}
         >
-          Asasunnajaah
+          {site.brandTitle}
         </span>
         <span className="block whitespace-nowrap text-[8px] font-semibold uppercase tracking-[0.18em] text-gold sm:text-[9px] sm:tracking-[0.2em] 2xl:text-[11px] 2xl:tracking-[0.24em]">
-          Kesugihan · Cilacap
+          {site.brandSub}
         </span>
       </span>
     </Link>
@@ -200,6 +201,7 @@ function MobileNav() {
   const [expanded, setExpanded] = useState<string | null>(null);
   const { pathname } = useLocation();
   const items = navItemsFor(pathname);
+  const site = useSiteSettings();
 
   return (
     <Sheet open={open} onOpenChange={setOpen}>
@@ -300,7 +302,7 @@ function MobileNav() {
           <p className="mt-4 text-xs font-semibold uppercase tracking-[0.18em] text-gold">Hubungi kami</p>
           <div className="mt-3 flex items-center gap-3">
             <a
-              href={`https://wa.me/${SITE.whatsapp}`}
+              href={`https://wa.me/${site.whatsapp}`}
               target="_blank"
               rel="noreferrer"
               className="inline-flex flex-1 items-center justify-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold text-accent-foreground transition-colors hover:bg-terracotta-hover"
@@ -309,7 +311,7 @@ function MobileNav() {
               WhatsApp PSB
             </a>
             <a
-              href={`tel:+${SITE.whatsapp}`}
+              href={`tel:+${site.whatsapp}`}
               className="inline-flex items-center justify-center gap-2 rounded-full px-4 py-2.5 text-sm font-semibold text-dropdown-foreground ring-1 ring-dropdown-hover transition-colors hover:bg-dropdown-hover"
             >
               <Phone className="h-4 w-4 text-gold" />
@@ -317,14 +319,14 @@ function MobileNav() {
             </a>
           </div>
           <p className="mt-3 text-xs text-dropdown-muted">
-            {SITE.location} · {SITE.office}
+            {site.location} · {site.office}
           </p>
           <div className="mt-4 flex items-center gap-4">
             {(
               [
-                { label: "Instagram", href: SITE.socials.find((s) => s.label === "Instagram")?.href ?? "#", Icon: Instagram },
-                { label: "Facebook", href: SITE.socials.find((s) => s.label === "Facebook")?.href ?? "#", Icon: Facebook },
-                { label: "YouTube", href: SITE.socials.find((s) => s.label === "YouTube")?.href ?? "#", Icon: Youtube },
+                { label: "Instagram", href: site.socials.find((s) => s.label === "Instagram")?.href ?? "#", Icon: Instagram },
+                { label: "Facebook", href: site.socials.find((s) => s.label === "Facebook")?.href ?? "#", Icon: Facebook },
+                { label: "YouTube", href: site.socials.find((s) => s.label === "YouTube")?.href ?? "#", Icon: Youtube },
               ] as const
             ).map(({ label, href, Icon }) => (
               <a
@@ -340,7 +342,7 @@ function MobileNav() {
               </a>
             ))}
             <a
-              href={`https://wa.me/${SITE.whatsapp}`}
+              href={`https://wa.me/${site.whatsapp}`}
               target="_blank"
               rel="noreferrer"
               aria-label="Hubungi kami via WhatsApp"
@@ -359,6 +361,7 @@ function MobileNav() {
 export function SiteHeader() {
   const [scrolled, setScrolled] = useState(false);
   const [hidden, setHidden] = useState(false);
+  const site = useSiteSettings();
 
   useEffect(() => {
     let lastY = window.scrollY;
@@ -391,9 +394,9 @@ export function SiteHeader() {
           <div className="hidden items-center gap-1 md:flex">
             {(
               [
-                { label: "Instagram", href: SITE.socials.find((s) => s.label === "Instagram")?.href ?? "#", Icon: Instagram },
-                { label: "Facebook", href: SITE.socials.find((s) => s.label === "Facebook")?.href ?? "#", Icon: Facebook },
-                { label: "YouTube", href: SITE.socials.find((s) => s.label === "YouTube")?.href ?? "#", Icon: Youtube },
+                { label: "Instagram", href: site.socials.find((s) => s.label === "Instagram")?.href ?? "#", Icon: Instagram },
+                { label: "Facebook", href: site.socials.find((s) => s.label === "Facebook")?.href ?? "#", Icon: Facebook },
+                { label: "YouTube", href: site.socials.find((s) => s.label === "YouTube")?.href ?? "#", Icon: Youtube },
               ] as const
             ).map(({ label, href, Icon }) => (
               <a
@@ -409,7 +412,7 @@ export function SiteHeader() {
               </a>
             ))}
             <a
-              href={`https://wa.me/${SITE.whatsapp}`}
+              href={`https://wa.me/${site.whatsapp}`}
               target="_blank"
               rel="noreferrer"
               aria-label="Hubungi kami via WhatsApp"

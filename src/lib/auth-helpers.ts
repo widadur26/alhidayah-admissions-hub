@@ -1,5 +1,5 @@
 import { deleteCookie, getCookie, setCookie } from "@tanstack/react-start/server";
-import { getPool } from "@/lib/db";
+import { dbErrorMessage, getPool } from "@/lib/db";
 import { encodePassword, verifyPassword } from "@/lib/hash";
 
 /**
@@ -23,7 +23,8 @@ export const sessionCookieOptions = () => ({
   sameSite: "lax" as const,
   path: "/",
   maxAge: MAX_AGE,
-  secure: false, // berjalan lokal (http); set true saat di-hosting https
+  // HTTPS di Vercel → cookie Secure; lokal (http) tetap jalan tanpa flag Secure.
+  secure: process.env.VERCEL === "1" || process.env.COOKIE_SECURE === "1",
 });
 
 /* ==================== Kripto & token ==================== */
@@ -59,9 +60,10 @@ const memberTokenUserId = async (token: string | undefined): Promise<number | nu
   const [idRaw, expRaw, sig] = parts;
   const id = Number(idRaw);
   const exp = Number(expRaw);
-  if (!Number.isFinite(id) || id < 1 || !Number.isFinite(exp) || exp < Date.now() || !sig) return null;
+  if (!Number.isFinite(id) || id < 1 || !Number.isFinite(exp) || exp < Date.now() || !sig)
+    return null;
   const expected = await sign(`member:${id}:${exp}`);
-  if (sig.length !== expected.length) return false;
+  if (sig.length !== expected.length) return null;
   const { timingSafeEqual } = await loadCrypto();
   if (!timingSafeEqual(Buffer.from(sig), Buffer.from(expected))) return null;
   return id;
@@ -114,14 +116,30 @@ export const loginWithAccount = async (
   password: string,
 ): Promise<{ ok: true; role: MemberRole }> => {
   if (!username || !password) throw new Error("Isi username dan password.");
-  const pool = await getPool();
-  const [rows] = await pool.query(
-    "SELECT id, name, username, role, password_hash FROM users WHERE username = ? LIMIT 1",
-    [username],
-  );
-  const user = (rows as unknown as Array<{ id: number; name: string; username: string; role: MemberRole; password_hash: string }>)[0];
+  let user:
+    | { id: number; name: string; username: string; role: MemberRole; password_hash: string }
+    | undefined;
+  try {
+    const pool = await getPool();
+    const [rows] = await pool.query(
+      "SELECT id, name, username, role, password_hash FROM users WHERE username = ? LIMIT 1",
+      [username],
+    );
+    user = (
+      rows as unknown as Array<{
+        id: number;
+        name: string;
+        username: string;
+        role: MemberRole;
+        password_hash: string;
+      }>
+    )[0];
+  } catch (error) {
+    throw new Error(dbErrorMessage(error));
+  }
   if (!user) throw new Error("Username atau password salah.");
-  if (!(await verifyPassword(password, user.password_hash))) throw new Error("Username atau password salah.");
+  if (!(await verifyPassword(password, user.password_hash)))
+    throw new Error("Username atau password salah.");
   setCookie(MEMBER_COOKIE, await makeMemberToken(user.id), sessionCookieOptions());
   return { ok: true, role: user.role };
 };
@@ -132,7 +150,10 @@ export const getMemberFromCookie = async (): Promise<MemberUser | null> => {
   if (!userId) return null;
   try {
     const pool = await getPool();
-    const [rows] = await pool.query("SELECT id, name, username, role FROM users WHERE id = ? LIMIT 1", [userId]);
+    const [rows] = await pool.query(
+      "SELECT id, name, username, role FROM users WHERE id = ? LIMIT 1",
+      [userId],
+    );
     return (rows as unknown as MemberUser[])[0] ?? null;
   } catch {
     return null;
@@ -144,7 +165,10 @@ export const requireMemberAuth = async (): Promise<MemberUser> => {
   const userId = await memberTokenUserId(getCookie(MEMBER_COOKIE));
   if (!userId) throw new Error("Silakan masuk terlebih dahulu.");
   const pool = await getPool();
-  const [rows] = await pool.query("SELECT id, name, username, role FROM users WHERE id = ? LIMIT 1", [userId]);
+  const [rows] = await pool.query(
+    "SELECT id, name, username, role FROM users WHERE id = ? LIMIT 1",
+    [userId],
+  );
   const user = (rows as unknown as MemberUser[])[0];
   if (!user) throw new Error("Akun tidak ditemukan — masuk kembali.");
   return user;
@@ -168,5 +192,3 @@ export const requireDashboardAuth = async (): Promise<void> => {
 export const clearSessions = (which: "dash" | "member"): void => {
   deleteCookie(which === "dash" ? DASH_COOKIE : MEMBER_COOKIE, { path: "/" });
 };
-
-

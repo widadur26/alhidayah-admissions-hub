@@ -15,6 +15,7 @@ import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as GaleriKontakRouteImport } from './routes/galeri-kontak'
 import { Route as MasukRouteImport } from './routes/masuk'
 import { Route as SectionSlugRouteImport } from './routes/$section.$slug'
+import { Route as ApiBlobUploadRouteImport } from './routes/api.blob-upload'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -46,6 +47,11 @@ const SectionSlugRoute = SectionSlugRouteImport.update({
   path: '/$section/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const ApiBlobUploadRoute = ApiBlobUploadRouteImport.update({
+  id: '/api/blob-upload',
+  path: '/api/blob-upload',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -54,6 +60,7 @@ export interface FileRoutesByFullPath {
   '/galeri-kontak': typeof GaleriKontakRoute
   '/masuk': typeof MasukRoute
   '/$section/$slug': typeof SectionSlugRoute
+  '/api/blob-upload': typeof ApiBlobUploadRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -62,6 +69,7 @@ export interface FileRoutesByTo {
   '/galeri-kontak': typeof GaleriKontakRoute
   '/masuk': typeof MasukRoute
   '/$section/$slug': typeof SectionSlugRoute
+  '/api/blob-upload': typeof ApiBlobUploadRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -71,6 +79,7 @@ export interface FileRoutesById {
   '/galeri-kontak': typeof GaleriKontakRoute
   '/masuk': typeof MasukRoute
   '/$section/$slug': typeof SectionSlugRoute
+  '/api/blob-upload': typeof ApiBlobUploadRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -81,6 +90,7 @@ export interface FileRouteTypes {
     | '/galeri-kontak'
     | '/masuk'
     | '/$section/$slug'
+    | '/api/blob-upload'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -89,6 +99,7 @@ export interface FileRouteTypes {
     | '/galeri-kontak'
     | '/masuk'
     | '/$section/$slug'
+    | '/api/blob-upload'
   id:
     | '__root__'
     | '/'
@@ -97,6 +108,7 @@ export interface FileRouteTypes {
     | '/galeri-kontak'
     | '/masuk'
     | '/$section/$slug'
+    | '/api/blob-upload'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -106,6 +118,7 @@ export interface RootRouteChildren {
   GaleriKontakRoute: typeof GaleriKontakRoute
   MasukRoute: typeof MasukRoute
   SectionSlugRoute: typeof SectionSlugRoute
+  ApiBlobUploadRoute: typeof ApiBlobUploadRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -152,6 +165,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SectionSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/api/blob-upload': {
+      id: '/api/blob-upload'
+      path: '/api/blob-upload'
+      fullPath: '/api/blob-upload'
+      preLoaderRoute: typeof ApiBlobUploadRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -162,6 +182,7 @@ const rootRouteChildren: RootRouteChildren = {
   GaleriKontakRoute: GaleriKontakRoute,
   MasukRoute: MasukRoute,
   SectionSlugRoute: SectionSlugRoute,
+  ApiBlobUploadRoute: ApiBlobUploadRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)

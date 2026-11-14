@@ -1,8 +1,10 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 
 import { IMAGES, type ImageKey } from "@/lib/images";
-import { SITE } from "@/content/site";
+import { getSiteContent } from "@/lib/content-store";
+import { useSiteSettings } from "@/lib/site-settings";
 import { PageHero } from "@/components/site/PageHero";
 
 export const Route = createFileRoute("/galeri-kontak")({
@@ -32,11 +34,23 @@ const GALLERY: { image: ImageKey; caption: string }[] = [
 ];
 
 function GaleriKontak() {
+  const site = useSiteSettings();
+  const { data: saved } = useQuery({
+    queryKey: ["site-content"],
+    queryFn: () => getSiteContent(),
+    staleTime: 30_000,
+  });
+
+  const gallery = GALLERY.map((d, i) => ({
+    caption: saved?.siteGallery?.[i]?.caption?.trim() || d.caption,
+    src: saved?.siteGallery?.[i]?.imageUrl || IMAGES[d.image],
+  }));
+
   const contacts = [
-    { icon: MapPin, label: "Alamat", value: SITE.address },
-    { icon: Phone, label: "Telepon / WhatsApp", value: SITE.phone, href: `https://wa.me/${SITE.whatsapp}` },
-    { icon: Mail, label: "Email", value: SITE.email, href: `mailto:${SITE.email}` },
-    { icon: Clock, label: "Jam layanan kantor", value: SITE.office },
+    { icon: MapPin, label: "Alamat", value: site.address },
+    { icon: Phone, label: "Telepon / WhatsApp", value: site.phone, href: `https://wa.me/${site.whatsapp}` },
+    { icon: Mail, label: "Email", value: site.email, href: `mailto:${site.email}` },
+    { icon: Clock, label: "Jam layanan kantor", value: site.office },
   ];
   return (
     <main>
@@ -49,9 +63,9 @@ function GaleriKontak() {
       <section className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:py-20">
         <h2 className="text-3xl font-semibold text-foreground">Galeri kegiatan</h2>
         <div className="mt-8 grid grid-cols-2 gap-3 md:grid-cols-3">
-          {GALLERY.map((g) => (
-            <figure key={g.caption} className="group relative overflow-hidden rounded-xl">
-              <img src={IMAGES[g.image]} alt={g.caption} loading="lazy" width={1280} height={864} className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
+          {gallery.map((g, i) => (
+            <figure key={i} className="group relative overflow-hidden rounded-xl">
+              <img src={g.src} alt={g.caption} loading="lazy" width={1280} height={864} className="aspect-[4/3] w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]" />
               <figcaption className="absolute inset-x-0 bottom-0 bg-hero-fade px-4 pb-3 pt-10 text-sm font-medium text-deep-foreground">{g.caption}</figcaption>
             </figure>
           ))}
@@ -75,7 +89,7 @@ function GaleriKontak() {
           </div>
           <iframe
             title="Peta lokasi Pondok Pesantren Asasunnajaah"
-            src={`https://www.google.com/maps?q=${encodeURIComponent(SITE.mapQuery)}&output=embed`}
+            src={`https://www.google.com/maps?q=${encodeURIComponent(site.mapQuery)}&output=embed`}
             loading="lazy"
             className="h-80 w-full rounded-xl border border-border lg:h-full"
           />

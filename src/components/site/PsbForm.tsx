@@ -5,7 +5,8 @@ import { z } from "zod";
 import { CheckCircle2, MessageCircle } from "lucide-react";
 
 import { cn } from "@/lib/utils";
-import { PSB_INFO, SITE } from "@/content/site";
+import { useSiteSettings } from "@/lib/site-settings";
+import { useSiteLists } from "@/lib/site-settings";
 
 const phone = /^(\+62|62|0)8[0-9]{8,12}$/;
 
@@ -29,9 +30,9 @@ export const psbSchema = z.object({
 
 export type PsbValues = z.infer<typeof psbSchema>;
 
-export function buildWhatsappMessage(v: PsbValues) {
+export function buildWhatsappMessage(v: PsbValues, year: string) {
   return [
-    `Assalamu'alaikum, saya ingin mendaftar PSB ${PSB_INFO.year}.`,
+    `Assalamu'alaikum, saya ingin mendaftar PSB ${year}.`,
     "",
     `Nama: ${v.nama}`,
     `Jenis kelamin: ${v.jenisKelamin}`,
@@ -72,6 +73,8 @@ function Field({
 
 export function PsbForm() {
   const [submitted, setSubmitted] = useState<PsbValues | null>(null);
+  const site = useSiteSettings();
+  const lists = useSiteLists();
   const {
     register,
     handleSubmit,
@@ -80,7 +83,7 @@ export function PsbForm() {
   } = useForm<PsbValues>({ resolver: zodResolver(psbSchema) });
 
   if (submitted) {
-    const href = `https://wa.me/${SITE.whatsapp}?text=${encodeURIComponent(buildWhatsappMessage(submitted))}`;
+    const href = `https://wa.me/${site.whatsapp}?text=${encodeURIComponent(buildWhatsappMessage(submitted, lists.psb.year))}`;
     return (
       <div className="rounded-xl border border-border bg-card p-6 sm:p-8">
         <CheckCircle2 className="h-10 w-10 text-primary" />

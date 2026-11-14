@@ -1,7 +1,8 @@
 import type { ComponentType } from "react";
 import { Facebook, Instagram, Youtube, type LucideIcon } from "lucide-react";
 
-import { SITE } from "@/content/site";
+import type { SocialSetting } from "@/lib/site-settings";
+import { DEFAULT_SETTINGS } from "@/lib/site-settings";
 
 /** Ikon TikTok tidak tersedia di lucide-react — pakai SVG inline bergaya mirip. */
 function TikTokIcon({ className }: { className?: string }) {
@@ -21,9 +22,10 @@ const ICONS: Record<string, LucideIcon | ComponentType<{ className?: string }>> 
 
 export type SocialLink = { label: string; href: string; Icon: ComponentType<{ className?: string }> };
 
-/** Sumber data: SITE.socials di src/content/site.ts. */
-export const SOCIAL_LINK_ICONS: SocialLink[] = SITE.socials.map(({ label, href }) => ({
-  label,
-  href,
-  Icon: ICONS[label] ?? Facebook,
-}));
+/** Sumber data: pengaturan sosmed dari dashboard (bawaan: site_settings bawaan). */
+export const socialLinkIcons = (socials: SocialSetting[] = DEFAULT_SETTINGS.socials): SocialLink[] =>
+  socials.map(({ label, href }) => ({
+    label,
+    href,
+    Icon: ICONS[label] ?? Facebook,
+  }));

@@ -1,15 +1,18 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useRef, useState, type ReactNode } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+import { upload as uploadToBlob } from "@vercel/blob/client";
 import {
   BadgeCheck,
   Check,
   ClipboardList,
   Eye,
   EyeOff,
+  FileText,
   Home,
   ImageUp,
   Images,
+  Layers,
   Loader2,
   Lock,
   LogIn,
@@ -18,6 +21,7 @@ import {
   Plus,
   ReceiptText,
   Save,
+  Settings,
   Trash2,
   Upload,
   Users,
@@ -50,9 +54,24 @@ import {
   getSiteContent,
   saveSiteContent,
   uploadImage,
+  GALLERY_PAGE_SLOTS,
   type NewsContent,
   type SiteContent,
 } from "@/lib/content-store";
+import {
+  deletePageOverride,
+  getPagesContent,
+  getSiteLists,
+  getSiteSettings,
+  savePageOverride,
+  saveSiteLists,
+  saveSiteSettings,
+  type SiteLists,
+  type SiteSettings,
+} from "@/lib/site-settings";
+import { blocksToEditable, iconNames } from "@/lib/block-icons";
+import { getPage } from "@/content/pages";
+import { NAV_ITEMS } from "@/components/site/nav-data";
 
 export const Route = createFileRoute("/dashboard")({
   head: () => ({
@@ -64,12 +83,25 @@ export const Route = createFileRoute("/dashboard")({
   component: DashboardPage,
 });
 
-type Tab = "beranda" | "kabar" | "galeri" | "logo" | "akun" | "bayar" | "kebutuhan";
+type Tab =
+  | "pengaturan"
+  | "beranda"
+  | "kabar"
+  | "galeri"
+  | "halaman"
+  | "konten"
+  | "logo"
+  | "akun"
+  | "bayar"
+  | "kebutuhan";
 
 const MENU: { key: Tab; label: string; desc: string; icon: typeof Home }[] = [
+  { key: "pengaturan", label: "Pengaturan Situs", desc: "Nama, kontak, sosmed & teks footer", icon: Settings },
   { key: "beranda", label: "Gambar Beranda", desc: "Ganti 3 slide & teks hero", icon: Home },
   { key: "kabar", label: "Kabar Terbaru", desc: "Tulis berita + foto baru", icon: Newspaper },
-  { key: "galeri", label: "Galeri Beranda", desc: "Ganti 6 foto & keterangan", icon: Images },
+  { key: "galeri", label: "Galeri", desc: "Foto beranda & halaman galeri", icon: Images },
+  { key: "halaman", label: "Halaman Situs", desc: "Judul, ringkasan & isi halaman", icon: FileText },
+  { key: "konten", label: "Konten Beranda & Daftar", desc: "Statistik, program, agenda, testimoni & PSB", icon: Layers },
   { key: "logo", label: "Logo Pondok", desc: "Unggah logo header & footer", icon: ImageUp },
   { key: "akun", label: "Wali & Alumni", desc: "Akun, daftar santri & alumni", icon: Users },
   { key: "bayar", label: "Pembayaran", desc: "Tagihan & verifikasi bukti", icon: Wallet },
@@ -104,6 +136,7 @@ function normalize(c: Partial<SiteContent> | undefined): SiteContent {
     logo: c?.logo ?? null,
     hero: [0, 1, 2].map((i) => c?.hero?.[i] ?? { eyebrow: "", title: "", text: "", imageUrl: null }),
     gallery: [0, 1, 2, 3, 4, 5].map((i) => c?.gallery?.[i] ?? { caption: "", imageUrl: null }),
+    siteGallery: [...Array(GALLERY_PAGE_SLOTS).keys()].map((i) => c?.siteGallery?.[i] ?? { caption: "", imageUrl: null }),
     news: c?.news ?? [],
   };
 }
@@ -124,7 +157,21 @@ function ImageField({
 }) {
   const [error, setError] = useState("");
   const upload = useMutation({
-    mutationFn: (v: { name: string; dataUrl: string }) => uploadImage({ data: v }),
+    mutationFn: async (file: File) => {
+      if (import.meta.env.PROD) {
+        const name = file.name.replace(/[^a-zA-Z0-9._-]+/g, "-") || "gambar";
+        const blob = await uploadToBlob(`dashboard/${Date.now()}-${name}`, file, {
+          access: "public",
+          handleUploadUrl: "/api/blob-upload",
+          clientPayload: "dashboard",
+          contentType: file.type,
+        });
+        return { url: blob.url };
+      }
+
+      const dataUrl = await fileToDataUrl(file);
+      return uploadImage({ data: { name: file.name, dataUrl } });
+    },
   });
 
   const onPick = async (file: File | undefined) => {
@@ -135,8 +182,7 @@ function ImageField({
       return;
     }
     try {
-      const dataUrl = await fileToDataUrl(file);
-      const res = await upload.mutateAsync({ name: file.name, dataUrl });
+      const res = await upload.mutateAsync(file);
       onChange(res.url);
     } catch (e) {
       setError(e instanceof Error ? e.message : "Unggah gagal.");
@@ -718,6 +764,526 @@ function NeedsAdmin() {
   );
 }
 
+/* ---------- Panel kelola: pengaturan situs & isi halaman ---------- */
+
+function SettingsAdmin() {
+  const queryClient = useQueryClient();
+  const { data: saved } = useQuery({ queryKey: ["site-settings"], queryFn: () => getSiteSettings() });
+  const [form, setForm] = useState<SiteSettings | null>(null);
+  const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    if (saved && !form) setForm(saved);
+  }, [saved, form]);
+
+  const save = useMutation({
+    mutationFn: () => saveSiteSettings({ data: form! }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["site-settings"] });
+      setStatus("Tersimpan — buka ulang halaman situs untuk melihat hasilnya.");
+      window.setTimeout(() => setStatus(""), 4000);
+    },
+    onError: (e) => setStatus(e instanceof Error ? e.message : "Gagal menyimpan."),
+  });
+
+  if (!form) {
+    return (
+      <Panel title="Pengaturan Situs" desc="Nama pondok, kontak, tautan sosmed, dan teks header/footer.">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </Panel>
+    );
+  }
+
+  const set = (patch: Partial<SiteSettings>) => setForm({ ...form, ...patch });
+  const setSocial = (i: number, patch: Partial<{ label: string; href: string }>) =>
+    set({ socials: form.socials.map((s, j) => (j === i ? { ...s, ...patch } : s)) });
+
+  return (
+    <>
+      <Panel
+        title="Identitas & tampilan teks"
+        desc="Nama pondok dan teks di samping logo pada header & footer situs."
+      >
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Nama lengkap lembaga" value={form.name} onChange={(v) => set({ name: v })} placeholder="Pondok Pesantren Asasunnajaah" />
+          <Field label="Nama pendek" value={form.short} onChange={(v) => set({ short: v })} placeholder="Asasunnajaah" />
+          <Field label="Teks brand header" value={form.brandTitle} onChange={(v) => set({ brandTitle: v })} placeholder="Asasunnajaah" />
+          <Field label="Teks kecil di bawah brand" value={form.brandSub} onChange={(v) => set({ brandSub: v })} placeholder="Kesugihan · Cilacap" />
+          <Field label="Lokasi singkat" value={form.location} onChange={(v) => set({ location: v })} placeholder="Kesugihan, Cilacap" />
+          <Field label="Tahun berdiri" value={form.founded} onChange={(v) => set({ founded: v })} placeholder="1987" />
+        </div>
+      </Panel>
+
+      <Panel title="Kontak & lokasi" desc="Dipakai pada header, footer, halaman Galeri & Kontak, formulir PSB, dan tombol WhatsApp.">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Alamat lengkap" textarea value={form.address} onChange={(v) => set({ address: v })} />
+          <Field label="Nomor telepon (yang ditampilkan)" value={form.phone} onChange={(v) => set({ phone: v })} placeholder="+62 812-3456-7890" />
+          <Field
+            label="Nomor WhatsApp (format 62…)"
+            value={form.whatsapp}
+            onChange={(v) => set({ whatsapp: v.replace(/[^0-9]/g, "") })}
+            placeholder="6281234567890"
+          />
+          <Field label="Email" value={form.email} onChange={(v) => set({ email: v })} placeholder="info@pondok.sch.id" />
+          <Field label="Jam layanan kantor" value={form.office} onChange={(v) => set({ office: v })} placeholder="Senin–Sabtu, 08.00–15.00 WIB" />
+          <Field label="Kata kunci peta Google Maps" value={form.mapQuery} onChange={(v) => set({ mapQuery: v })} placeholder="Kesugihan, Cilacap" />
+        </div>
+      </Panel>
+
+      <Panel title="Media sosial" desc="Tautan tampil di header (desktop), menu seluler, dan halaman kontak.">
+        <div className="space-y-3">
+          {form.socials.map((s, i) => (
+            <div key={i} className="grid gap-3 sm:grid-cols-[180px_minmax(0,1fr)]">
+              <Field label={`Label ${i + 1}`} value={s.label} onChange={(v) => setSocial(i, { label: v })} placeholder="Facebook / Instagram / TikTok / YouTube" />
+              <Field label="Tautan" value={s.href} onChange={(v) => setSocial(i, { href: v })} placeholder="https://…" />
+            </div>
+          ))}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          <button
+            type="button"
+            onClick={() => set({ socials: [...form.socials, { label: "", href: "" }] })}
+            className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+          >
+            <Plus className="h-3.5 w-3.5" />
+            Tambah tautan
+          </button>
+          {form.socials.length > 1 && (
+            <button
+              type="button"
+              onClick={() => set({ socials: form.socials.slice(0, -1) })}
+              className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-destructive ring-1 ring-destructive/30 transition-colors hover:bg-destructive/10"
+            >
+              <Trash2 className="h-3.5 w-3.5" />
+              Hapus tautan terakhir
+            </button>
+          )}
+        </div>
+      </Panel>
+
+      <Panel title="Teks footer" desc="Bagian bawah setiap halaman situs.">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Teks kecil di atas nama" value={form.footerEyebrow} onChange={(v) => set({ footerEyebrow: v })} />
+          <Field label="Teks hak cipta" value={form.footerCopyright} onChange={(v) => set({ footerCopyright: v })} />
+        </div>
+        <Field label="Paragraf deskripsi" textarea value={form.footerDescription} onChange={(v) => set({ footerDescription: v })} />
+      </Panel>
+
+      <div className="flex items-center gap-4">
+        <button
+          type="button"
+          disabled={save.isPending}
+          onClick={() => save.mutate()}
+          className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-cta transition-colors hover:bg-terracotta-hover disabled:opacity-60"
+        >
+          {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Simpan pengaturan situs
+        </button>
+        {status && (
+          <span className={cn("text-sm font-semibold", save.isError ? "text-destructive" : "text-primary")}>{status}</span>
+        )}
+      </div>
+    </>
+  );
+}
+
+/** Daftar semua halaman nav yang bisa diedit (sumber: nav-data.ts, sesuai aturan proyek). */
+const PAGE_OPTIONS = NAV_ITEMS.flatMap((item) =>
+  item.kind === "group"
+    ? item.children.map((c) => ({ section: item.section, groupLabel: item.label, slug: c.slug, label: c.label }))
+    : [],
+);
+
+function PageEditor({
+  section,
+  slug,
+  groupLabel,
+  label,
+  savedTitle,
+  savedSummary,
+  savedBlocks,
+}: {
+  section: string;
+  slug: string;
+  groupLabel: string;
+  label: string;
+  savedTitle: string | null;
+  savedSummary: string | null;
+  savedBlocks: unknown[] | null;
+}) {
+  const queryClient = useQueryClient();
+  const page = getPage(section, slug)!;
+  const [title, setTitle] = useState(savedTitle?.trim() || page.title);
+  const [summary, setSummary] = useState(savedSummary?.trim() || page.summary);
+  const [blocksJson, setBlocksJson] = useState(() =>
+    JSON.stringify(blocksToEditable(savedBlocks ?? page.blocks), null, 2),
+  );
+  const [status, setStatus] = useState("");
+
+  const key = `${section}/${slug}`;
+  const invalidate = async () => {
+    await queryClient.invalidateQueries({ queryKey: ["pages-content"] });
+  };
+
+  const save = useMutation({
+    mutationFn: () => savePageOverride({ data: { section, slug, title, summary, blocksJson } }),
+    onSuccess: async () => {
+      await invalidate();
+      setStatus("Tersimpan — halaman sudah tampil dengan isi baru.");
+      window.setTimeout(() => setStatus(""), 4000);
+    },
+    onError: (e) => setStatus(e instanceof Error ? e.message : "Gagal menyimpan."),
+  });
+  const reset = useMutation({
+    mutationFn: () => deletePageOverride({ data: { section, slug } }),
+    onSuccess: async () => {
+      await invalidate();
+      setTitle(page.title);
+      setSummary(page.summary);
+      setBlocksJson(JSON.stringify(blocksToEditable(page.blocks), null, 2));
+      setStatus("Dikembalikan ke konten bawaan.");
+      window.setTimeout(() => setStatus(""), 4000);
+    },
+    onError: (e) => setStatus(e instanceof Error ? e.message : "Gagal mengembalikan."),
+  });
+
+  const isOverridden = savedTitle != null || savedSummary != null || savedBlocks != null;
+
+  return (
+    <Panel
+      title={`${groupLabel} · ${label}`}
+      desc={isOverridden ? "Halaman ini sudah dioverride — kosongkan bidang agar memakai bawaan." : "Belum dioverride; bidang berisi konten bawaan."}
+    >
+      <div className="grid gap-4 sm:grid-cols-2">
+        <Field label="Judul halaman" value={title} onChange={setTitle} />
+        <div className="sm:col-span-2">
+          <Field label="Ringkasan (untuk Google & Hero halaman)" textarea value={summary} onChange={setSummary} />
+        </div>
+        <div className="sm:col-span-2">
+          <label className="block">
+            <span className="text-sm font-semibold text-foreground">Blok konten (format JSON)</span>
+            <span className="mt-0.5 block text-xs text-muted-foreground">
+              Struktur mengikuti tipe blok: prose, facts, features, list, schedule, steps, table, people, chain,
+              articles, agenda, notices, quotes, partners, callout. Ikon ditulis sebagai teks, mis.{" "}
+              <code>"book-open"</code>, <code>"trophy"</code>.
+            </span>
+            <textarea
+              value={blocksJson}
+              rows={16}
+              spellCheck={false}
+              onChange={(e) => setBlocksJson(e.target.value)}
+              className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 font-mono text-xs leading-relaxed text-foreground outline-none transition-colors focus:border-accent"
+            />
+          </label>
+        </div>
+      </div>
+      <div className="flex flex-wrap items-center gap-3">
+        <button
+          type="button"
+          disabled={save.isPending || reset.isPending}
+          onClick={() => save.mutate()}
+          className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-cta transition-colors hover:bg-terracotta-hover disabled:opacity-60"
+        >
+          {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Simpan halaman ini
+        </button>
+        {isOverridden && (
+          <button
+            type="button"
+            disabled={save.isPending || reset.isPending}
+            onClick={() => reset.mutate()}
+            className="inline-flex items-center gap-1.5 rounded-full px-4 py-3 text-sm font-semibold text-muted-foreground ring-1 ring-border transition-colors hover:bg-muted disabled:opacity-60"
+          >
+            {reset.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <X className="h-4 w-4" />}
+            Kembalikan ke bawaan
+          </button>
+        )}
+        {status && (
+          <span className={cn("text-sm font-semibold", save.isError || reset.isError ? "text-destructive" : "text-primary")}>
+            {status}
+          </span>
+        )}
+      </div>
+    </Panel>
+  );
+}
+
+function PagesAdmin() {
+  const { data: pagesContent, isPending } = useQuery({ queryKey: ["pages-content"], queryFn: () => getPagesContent() });
+  const [selected, setSelected] = useState(PAGE_OPTIONS[0]!);
+
+  if (isPending || !pagesContent) {
+    return (
+      <Panel title="Halaman Situs" desc="Pilih halaman, lalu ubah judul, ringkasan, dan isi bloknya.">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </Panel>
+    );
+  }
+
+  const override = pagesContent[`${selected.section}/${selected.slug}`];
+
+  return (
+    <>
+      <Panel title="Pilih halaman" desc={`Semua halaman menu navigasi (${PAGE_OPTIONS.length} halaman) bisa diedit di sini.`}>
+        <div className="grid gap-2 sm:grid-cols-2 lg:grid-cols-3">
+          {PAGE_OPTIONS.map((p) => {
+            const key = `${p.section}/${p.slug}`;
+            const ov = pagesContent[key];
+            const edited = ov && (ov.title.trim() || ov.summary.trim() || ov.blocks);
+            return (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setSelected(p)}
+                className={cn(
+                  "flex items-center justify-between gap-2 rounded-lg border px-3 py-2.5 text-left text-sm transition-colors",
+                  selected.section === p.section && selected.slug === p.slug
+                    ? "border-accent bg-secondary font-semibold text-primary"
+                    : "border-border bg-background hover:bg-muted",
+                )}
+              >
+                <span className="min-w-0 truncate">
+                  <span className="block">{p.label}</span>
+                  <span className="block text-xs font-normal text-muted-foreground">{p.groupLabel}</span>
+                </span>
+                {edited && (
+                  <span className="shrink-0 rounded-full bg-emerald-500/15 px-2 py-0.5 text-[10px] font-semibold text-emerald-700 dark:text-emerald-400">
+                    diedit
+                  </span>
+                )}
+              </button>
+            );
+          })}
+        </div>
+      </Panel>
+      <PageEditor
+        key={`${selected.section}/${selected.slug}`}
+        section={selected.section}
+        slug={selected.slug}
+        groupLabel={selected.groupLabel}
+        label={selected.label}
+        savedTitle={override?.title ?? null}
+        savedSummary={override?.summary ?? null}
+        savedBlocks={override?.blocks ?? null}
+      />
+    </>
+  );
+}
+
+/* ---------- Panel kelola: statistik, program, agenda, pengumuman, testimoni, mitra & PSB ---------- */
+
+function IconSelect({ label, value, onChange }: { label: string; value: string; onChange: (v: string) => void }) {
+  return (
+    <label className="block">
+      <span className="text-sm font-semibold text-foreground">{label}</span>
+      <select
+        value={value}
+        onChange={(e) => onChange(e.target.value)}
+        className="mt-1 w-full rounded-lg border border-border bg-background px-3 py-2 text-sm text-foreground outline-none transition-colors focus:border-accent"
+      >
+        {iconNames().map((n) => (
+          <option key={n} value={n}>
+            {n}
+          </option>
+        ))}
+      </select>
+    </label>
+  );
+}
+
+function RowRemove({ onClick }: { onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-1.5 rounded-full px-3 py-1.5 text-xs font-semibold text-destructive ring-1 ring-destructive/30 transition-colors hover:bg-destructive/10"
+    >
+      <Trash2 className="h-3.5 w-3.5" />
+      Hapus
+    </button>
+  );
+}
+
+function AddButton({ label, onClick }: { label: string; onClick: () => void }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className="inline-flex items-center gap-2 rounded-full bg-primary px-5 py-2.5 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+    >
+      <Plus className="h-4 w-4" />
+      {label}
+    </button>
+  );
+}
+
+function ListsAdmin() {
+  const queryClient = useQueryClient();
+  const { data: saved } = useQuery({ queryKey: ["site-lists"], queryFn: () => getSiteLists() });
+  const [form, setForm] = useState<SiteLists | null>(null);
+  const [status, setStatus] = useState("");
+
+  useEffect(() => {
+    if (saved && !form) setForm(saved);
+  }, [saved, form]);
+
+  const save = useMutation({
+    mutationFn: () => saveSiteLists({ data: form! }),
+    onSuccess: async () => {
+      await queryClient.invalidateQueries({ queryKey: ["site-lists"] });
+      setStatus("Tersimpan — buka ulang halaman situs untuk melihat hasilnya.");
+      window.setTimeout(() => setStatus(""), 4000);
+    },
+    onError: (e) => setStatus(e instanceof Error ? e.message : "Gagal menyimpan."),
+  });
+
+  if (!form) {
+    return (
+      <Panel title="Konten Beranda & Daftar" desc="Statistik, program, agenda, pengumuman, testimoni, mitra & info PSB.">
+        <Loader2 className="h-5 w-5 animate-spin text-muted-foreground" />
+      </Panel>
+    );
+  }
+
+  const set = (patch: Partial<SiteLists>) => setForm({ ...form, ...patch });
+
+  return (
+    <>
+      <Panel title="Statistik beranda" desc="Tiga angka ringkas pada bagian bawah slide hero.">
+        <div className="space-y-4">
+          {form.stats.map((s, i) => (
+            <div key={i} className="grid gap-3 rounded-xl border border-border p-4 sm:grid-cols-[180px_minmax(0,1fr)_minmax(0,1fr)]">
+              <IconSelect label={`Ikon ${i + 1}`} value={s.icon} onChange={(v) => set({ stats: form.stats.map((x, j) => (j === i ? { ...x, icon: v } : x)) })} />
+              <Field label="Angka" value={s.value} onChange={(v) => set({ stats: form.stats.map((x, j) => (j === i ? { ...x, value: v } : x)) })} placeholder="1.200+" />
+              <Field label="Keterangan" value={s.label} onChange={(v) => set({ stats: form.stats.map((x, j) => (j === i ? { ...x, label: v } : x)) })} placeholder="Santri mukim" />
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel title="Program pendidikan beranda" desc="Empat kartu program; tautannya tetap (Formal, Formal, Diniyah, Tahfizh), teksnya bebas.">
+        <div className="space-y-4">
+          {form.programs.map((p, i) => (
+            <div key={i} className="space-y-3 rounded-xl border border-border p-4">
+              <div className="grid gap-3 sm:grid-cols-[180px_minmax(0,1fr)_minmax(0,160px)]">
+                <IconSelect label={`Ikon ${i + 1}`} value={p.icon} onChange={(v) => set({ programs: form.programs.map((x, j) => (j === i ? { ...x, icon: v } : x)) })} />
+                <Field label="Judul" value={p.title} onChange={(v) => set({ programs: form.programs.map((x, j) => (j === i ? { ...x, title: v } : x)) })} placeholder="MTs (kelas VII–IX)" />
+                <Field label="Catatan kecil" value={p.meta} onChange={(v) => set({ programs: form.programs.map((x, j) => (j === i ? { ...x, meta: v } : x)) })} placeholder="Akreditasi A" />
+              </div>
+              <Field label="Deskripsi" textarea value={p.text} onChange={(v) => set({ programs: form.programs.map((x, j) => (j === i ? { ...x, text: v } : x)) })} />
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel title="Info PSB" desc="Tahun ajaran, kuota, dan jadwal gelombang — tampil di beranda, formulir PSB, dan halaman PSB.">
+        <div className="grid gap-4 sm:grid-cols-2">
+          <Field label="Tahun ajaran" value={form.psb.year} onChange={(v) => set({ psb: { ...form.psb, year: v } })} placeholder="2027/2028" />
+          <Field label="Kuota" value={form.psb.quota} onChange={(v) => set({ psb: { ...form.psb, quota: v } })} placeholder="160 putra · 160 putri" />
+        </div>
+        <div className="space-y-4">
+          {form.psb.waves.map((w, i) => (
+            <div key={i} className="grid gap-3 rounded-xl border border-border p-4 sm:grid-cols-[minmax(0,1fr)_minmax(0,1.4fr)_minmax(0,1fr)]">
+              <Field label={`Nama gelombang ${i + 1}`} value={w.name} onChange={(v) => set({ psb: { ...form.psb, waves: form.psb.waves.map((x, j) => (j === i ? { ...x, name: v } : x)) } })} placeholder="Gelombang I" />
+              <Field label="Masa pendaftaran" value={w.period} onChange={(v) => set({ psb: { ...form.psb, waves: form.psb.waves.map((x, j) => (j === i ? { ...x, period: v } : x)) } })} placeholder="1 Nov 2026 – 31 Jan 2027" />
+              <Field label="Tes seleksi" value={w.test} onChange={(v) => set({ psb: { ...form.psb, waves: form.psb.waves.map((x, j) => (j === i ? { ...x, test: v } : x)) } })} placeholder="8 Februari 2027" />
+            </div>
+          ))}
+        </div>
+      </Panel>
+
+      <Panel title="Agenda" desc="Kalender kegiatan — 4 teratas tampil di beranda, seluruhnya di halaman Event & Agenda.">
+        <div className="space-y-4">
+          {form.agenda.map((a, i) => (
+            <div key={i} className="space-y-3 rounded-xl border border-border p-4">
+              <div className="grid gap-3 sm:grid-cols-[140px_minmax(0,1fr)_minmax(0,1fr)_140px]">
+                <Field label="Tanggal" value={a.date} onChange={(v) => set({ agenda: form.agenda.map((x, j) => (j === i ? { ...x, date: v } : x)) })} placeholder="2026-11-21" />
+                <Field label="Kegiatan" value={a.title} onChange={(v) => set({ agenda: form.agenda.map((x, j) => (j === i ? { ...x, title: v } : x)) })} />
+                <Field label="Tempat" value={a.place} onChange={(v) => set({ agenda: form.agenda.map((x, j) => (j === i ? { ...x, place: v } : x)) })} />
+                <Field label="Waktu" value={a.time} onChange={(v) => set({ agenda: form.agenda.map((x, j) => (j === i ? { ...x, time: v } : x)) })} placeholder="08.00 WIB" />
+              </div>
+              <RowRemove onClick={() => set({ agenda: form.agenda.filter((_, j) => j !== i) })} />
+            </div>
+          ))}
+        </div>
+        <AddButton
+          label="Tambah agenda"
+          onClick={() =>
+            set({ agenda: [...form.agenda, { date: new Date().toISOString().slice(0, 10), title: "", place: "", time: "" }] })
+          }
+        />
+      </Panel>
+
+      <Panel title="Pengumuman" desc="Info untuk wali santri — 3 teratas tampil di beranda, seluruhnya di halaman Pengumuman.">
+        <div className="space-y-4">
+          {form.notices.map((n, i) => (
+            <div key={i} className="space-y-3 rounded-xl border border-border p-4">
+              <div className="grid gap-3 sm:grid-cols-[140px_140px_minmax(0,1fr)]">
+                <Field label="Tanggal" value={n.date} onChange={(v) => set({ notices: form.notices.map((x, j) => (j === i ? { ...x, date: v } : x)) })} placeholder="2026-11-08" />
+                <Field label="Tag" value={n.tag} onChange={(v) => set({ notices: form.notices.map((x, j) => (j === i ? { ...x, tag: v } : x)) })} placeholder="PSB / Keuangan" />
+                <Field label="Judul" value={n.title} onChange={(v) => set({ notices: form.notices.map((x, j) => (j === i ? { ...x, title: v } : x)) })} />
+              </div>
+              <Field label="Isi pengumuman" textarea value={n.text} onChange={(v) => set({ notices: form.notices.map((x, j) => (j === i ? { ...x, text: v } : x)) })} />
+              <RowRemove onClick={() => set({ notices: form.notices.filter((_, j) => j !== i) })} />
+            </div>
+          ))}
+        </div>
+        <AddButton
+          label="Tambah pengumuman"
+          onClick={() =>
+            set({ notices: [...form.notices, { date: new Date().toISOString().slice(0, 10), tag: "", title: "", text: "" }] })
+          }
+        />
+      </Panel>
+
+      <Panel title="Testimoni" desc="Kata wali santri & alumni — 2 teratas tampil di beranda, seluruhnya di halaman Mitra & Alumni.">
+        <div className="space-y-4">
+          {form.testimonials.map((t, i) => (
+            <div key={i} className="space-y-3 rounded-xl border border-border p-4">
+              <Field label="Kutipan" textarea value={t.quote} onChange={(v) => set({ testimonials: form.testimonials.map((x, j) => (j === i ? { ...x, quote: v } : x)) })} />
+              <div className="grid gap-3 sm:grid-cols-2">
+                <Field label="Nama" value={t.name} onChange={(v) => set({ testimonials: form.testimonials.map((x, j) => (j === i ? { ...x, name: v } : x)) })} />
+                <Field label="Keterangan" value={t.role} onChange={(v) => set({ testimonials: form.testimonials.map((x, j) => (j === i ? { ...x, role: v } : x)) })} placeholder="Alumni 2019 · Al-Azhar" />
+              </div>
+              <RowRemove onClick={() => set({ testimonials: form.testimonials.filter((_, j) => j !== i) })} />
+            </div>
+          ))}
+        </div>
+        <AddButton label="Tambah testimoni" onClick={() => set({ testimonials: [...form.testimonials, { quote: "", name: "", role: "" }] })} />
+      </Panel>
+
+      <Panel title="Mitra & lembaga" desc="Daftar mitra pada halaman Mitra & Alumni.">
+        <div className="space-y-3">
+          {form.partners.map((p, i) => (
+            <div key={i} className="flex items-end gap-3">
+              <div className="min-w-0 flex-1">
+                <Field label={`Mitra ${i + 1}`} value={p} onChange={(v) => set({ partners: form.partners.map((x, j) => (j === i ? v : x)) })} />
+              </div>
+              <RowRemove onClick={() => set({ partners: form.partners.filter((_, j) => j !== i) })} />
+            </div>
+          ))}
+        </div>
+        <AddButton label="Tambah mitra" onClick={() => set({ partners: [...form.partners, ""] })} />
+      </Panel>
+
+      <div className="flex items-center gap-4">
+        <button
+          type="button"
+          disabled={save.isPending}
+          onClick={() => save.mutate()}
+          className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold text-accent-foreground shadow-cta transition-colors hover:bg-terracotta-hover disabled:opacity-60"
+        >
+          {save.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : <Save className="h-4 w-4" />}
+          Simpan semua daftar
+        </button>
+        {status && (
+          <span className={cn("text-sm font-semibold", save.isError ? "text-destructive" : "text-primary")}>{status}</span>
+        )}
+      </div>
+    </>
+  );
+}
+
 function Panel({ title, desc, children }: { title: string; desc: string; children: ReactNode }) {
   return (
     <section className="rounded-xl border border-border bg-card p-5 sm:p-6">
@@ -787,6 +1353,8 @@ function DashboardPage() {
     setDraft((d) => (d ? { ...d, hero: d.hero.map((h, j) => (j === i ? { ...h, ...patch } : h)) } : d));
   const setGallery = (i: number, patch: Partial<SiteContent["gallery"][number]>) =>
     setDraft((d) => (d ? { ...d, gallery: d.gallery.map((g, j) => (j === i ? { ...g, ...patch } : g)) } : d));
+  const setSiteGallery = (i: number, patch: Partial<SiteContent["siteGallery"][number]>) =>
+    setDraft((d) => (d ? { ...d, siteGallery: d.siteGallery.map((g, j) => (j === i ? { ...g, ...patch } : g)) } : d));
   const setNews = (id: string, patch: Partial<NewsContent>) =>
     setDraft((d) => (d ? { ...d, news: d.news.map((n) => (n.id === id ? { ...n, ...patch } : n)) } : d));
 
@@ -880,6 +1448,8 @@ function DashboardPage() {
 
           {/* Panel aktif */}
           <div ref={panelRef} className="space-y-6">
+            {tab === "pengaturan" && <SettingsAdmin />}
+
             {tab === "beranda" && (
               <>
                 <Panel title="Slide 1 · Sambutan utama" desc="Slide pertama yang tampil saat halaman beranda dibuka.">
@@ -974,27 +1544,56 @@ function DashboardPage() {
             )}
 
             {tab === "galeri" && (
-              <Panel title="Galeri beranda" desc="Enam foto suasana santri. Unggah foto baru atau ubah keterangannya.">
-                <div className="grid gap-5 sm:grid-cols-2">
-                  {[0, 1, 2, 3, 4, 5].map((i) => (
-                    <div key={i} className="rounded-xl border border-border p-4">
-                      <p className="text-sm font-semibold text-foreground">Foto {i + 1}</p>
-                      <div className="mt-3">
-                        <ImageField
-                          label="Unggah gambar di sini"
-                          aspect="aspect-[4/3]"
-                          value={draft.gallery[i]?.imageUrl ?? null}
-                          onChange={(url) => setGallery(i, { imageUrl: url })}
-                        />
+              <>
+                <Panel title="Galeri beranda" desc="Enam foto suasana santri. Unggah foto baru atau ubah keterangannya.">
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    {[0, 1, 2, 3, 4, 5].map((i) => (
+                      <div key={i} className="rounded-xl border border-border p-4">
+                        <p className="text-sm font-semibold text-foreground">Foto {i + 1}</p>
+                        <div className="mt-3">
+                          <ImageField
+                            label="Unggah gambar di sini"
+                            aspect="aspect-[4/3]"
+                            value={draft.gallery[i]?.imageUrl ?? null}
+                            onChange={(url) => setGallery(i, { imageUrl: url })}
+                          />
+                        </div>
+                        <div className="mt-3">
+                          <Field label="Keterangan" value={draft.gallery[i]?.caption ?? ""} placeholder="Contoh: Halaqah ba'da Subuh" onChange={(v) => setGallery(i, { caption: v })} />
+                        </div>
                       </div>
-                      <div className="mt-3">
-                        <Field label="Keterangan" value={draft.gallery[i]?.caption ?? ""} placeholder="Contoh: Halaqah ba'da Subuh" onChange={(v) => setGallery(i, { caption: v })} />
+                    ))}
+                  </div>
+                </Panel>
+                <Panel
+                  title="Galeri halaman «Galeri & Kontak»"
+                  desc="Sembilan foto pada halaman /galeri-kontak beserta keterangannya."
+                >
+                  <div className="grid gap-5 sm:grid-cols-2">
+                    {[...Array(GALLERY_PAGE_SLOTS).keys()].map((i) => (
+                      <div key={i} className="rounded-xl border border-border p-4">
+                        <p className="text-sm font-semibold text-foreground">Foto {i + 1}</p>
+                        <div className="mt-3">
+                          <ImageField
+                            label="Unggah gambar di sini"
+                            aspect="aspect-[4/3]"
+                            value={draft.siteGallery[i]?.imageUrl ?? null}
+                            onChange={(url) => setSiteGallery(i, { imageUrl: url })}
+                          />
+                        </div>
+                        <div className="mt-3">
+                          <Field label="Keterangan" value={draft.siteGallery[i]?.caption ?? ""} placeholder="Contoh: Wisuda Akbar ke-37" onChange={(v) => setSiteGallery(i, { caption: v })} />
+                        </div>
                       </div>
-                    </div>
-                  ))}
-                </div>
-              </Panel>
+                    ))}
+                  </div>
+                </Panel>
+              </>
             )}
+
+            {tab === "halaman" && <PagesAdmin />}
+
+            {tab === "konten" && <ListsAdmin />}
 
             {tab === "logo" && (
               <Panel title="Logo pondok" desc="Logo tampil di header dan footer. Gunakan berkas PNG dengan latar transparan agar rapi di tema gelap.">
@@ -1026,8 +1625,8 @@ function DashboardPage() {
             {tab === "kebutuhan" && <NeedsAdmin />}
 
             <p className="text-xs text-muted-foreground">
-              Konten disimpan di database MySQL XAMPP (<code>alhidayah_admissions</code>), gambar unggahan di folder{" "}
-              <code>public/uploads</code> pada komputer server ini.
+              Konten disimpan di database MySQL (<code>alhidayah_admissions</code>); gambar disimpan di Vercel Blob
+              saat deployment dan di <code>public/uploads</code> saat berjalan lokal.
             </p>
           </div>
         </div>

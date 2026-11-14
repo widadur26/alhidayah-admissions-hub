@@ -15,4 +15,8 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
+  // Deploy ke Vercel: pin preset agar server functions berjalan sebagai Vercel Functions.
+  nitro: {
+    preset: "vercel",
+  },
 });

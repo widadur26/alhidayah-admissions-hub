@@ -1,11 +1,12 @@
 import { Link } from "@tanstack/react-router";
 import { Clock, Mail, MapPin, Phone } from "lucide-react";
 
-import { SITE } from "@/content/site";
+import { useSiteSettings } from "@/lib/site-settings";
 import { NAV_GROUPS } from "./nav-data";
 import { LogoMark } from "./LogoMark";
 
 export function SiteFooter() {
+  const site = useSiteSettings();
   const year = new Date().getFullYear();
   return (
     <footer className="bg-deep text-deep-foreground">
@@ -14,30 +15,29 @@ export function SiteFooter() {
           <div className="flex items-center gap-3">
             <LogoMark className="h-11 shrink-0" />
             <span className="leading-tight">
-              <span className="eyebrow block text-[11px] text-gold">Pondok Pesantren Kesugihan · Cilacap</span>
-              <span className="block font-display text-xl font-semibold">{SITE.short}</span>
+              <span className="eyebrow block text-[11px] text-gold">{site.footerEyebrow}</span>
+              <span className="block font-display text-xl font-semibold">{site.short}</span>
             </span>
           </div>
           <p className="mt-5 max-w-sm text-sm leading-relaxed text-deep-muted">
-            Lembaga pendidikan Islam berasrama di {SITE.location}, sejak {SITE.founded}. Memadukan kitab kuning,
-            tahfizh Al-Qur'an, dan madrasah formal.
+            {site.footerDescription}
           </p>
           <ul className="mt-6 space-y-3 text-sm text-deep-muted">
             <li className="flex gap-3">
               <MapPin className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-              {SITE.address}
+              {site.address}
             </li>
             <li className="flex gap-3">
               <Phone className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-              <a href={`https://wa.me/${SITE.whatsapp}`} className="hover:text-deep-foreground">{SITE.phone}</a>
+              <a href={`https://wa.me/${site.whatsapp}`} className="hover:text-deep-foreground">{site.phone}</a>
             </li>
             <li className="flex gap-3">
               <Mail className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-              <a href={`mailto:${SITE.email}`} className="hover:text-deep-foreground">{SITE.email}</a>
+              <a href={`mailto:${site.email}`} className="hover:text-deep-foreground">{site.email}</a>
             </li>
             <li className="flex gap-3">
               <Clock className="mt-0.5 h-4 w-4 shrink-0 text-gold" />
-              {SITE.office}
+              {site.office}
             </li>
           </ul>
         </div>
@@ -65,7 +65,7 @@ export function SiteFooter() {
       </div>
       <div className="border-t border-deep-border">
         <div className="mx-auto flex max-w-7xl flex-col gap-2 px-4 py-6 text-xs text-deep-muted sm:flex-row sm:justify-between sm:px-6">
-          <p>© {year} Yayasan Asasunnajaah Kesugihan. Hak cipta dilindungi.</p>
+          <p>© {year} {site.footerCopyright}</p>
           <div className="flex items-center gap-4">
             <Link to="/dashboard" className="text-muted-foreground transition-colors hover:text-deep-foreground">
               Dashboard Admin

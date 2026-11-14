@@ -3,15 +3,11 @@ import { useQuery } from "@tanstack/react-query";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import {
   ArrowRight,
-  BookOpen,
   ChevronLeft,
   ChevronRight,
-  GraduationCap,
   MapPin,
   MessageCircle,
   Route as RouteIcon,
-  ScrollText,
-  Users,
   Wallet,
 } from "lucide-react";
 
@@ -19,10 +15,12 @@ import kelasImage from "@/assets/kelas-formal.jpg";
 import tahfizhImage from "@/assets/santri-tahfizh.jpg";
 import wisudaImage from "@/assets/wisuda.jpg";
 import { getSiteContent } from "@/lib/content-store";
+import { useSiteLists, useSiteSettings } from "@/lib/site-settings";
+import { iconFromName } from "@/lib/block-icons";
 import { SectionHeading } from "@/components/site/SectionHeading";
 import { ArticleCard, AgendaRow, NoticeRow, QuoteCard } from "@/components/site/blocks";
 import { IMAGES, type ImageKey } from "@/lib/images";
-import { AGENDA, NEWS, NOTICES, PSB_INFO, SITE, TESTIMONIALS } from "@/content/site";
+import { NEWS } from "@/content/site";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -72,42 +70,13 @@ const SLIDES = [
   },
 ];
 
-const STATS = [
-  { icon: Users, value: "1.200+", label: "Santri mukim" },
-  { icon: GraduationCap, value: "86", label: "Asatidz & musyrif" },
-  { icon: BookOpen, value: "37", label: "Angkatan wisuda" },
-];
-
-const PROGRAMS = [
-  {
-    icon: GraduationCap,
-    title: "MTs (kelas VII–IX)",
-    href: { section: "pendidikan", slug: "formal" } as const,
-    text: "Madrasah Tsanawiyah dengan Kurikulum Merdeka, pendalaman bahasa Arab–Inggris, dan tahsin harian.",
-    meta: "Akreditasi A",
-  },
-  {
-    icon: GraduationCap,
-    title: "MA (kelas X–XII)",
-    href: { section: "pendidikan", slug: "formal" } as const,
-    text: "Peminatan IPA, IPS, dan Keagamaan. Bimbingan melanjutkan ke PTN maupun LPTQ kairo dan Timur Tengah.",
-    meta: "Akreditasi A",
-  },
-  {
-    icon: BookOpen,
-    title: "Madrasah Diniyah",
-    href: { section: "pendidikan", slug: "diniyah" } as const,
-    text: "Jenjang ula, wustha, dan ulya sore-hari. Kitab pokok: Mabadi Fiqih sampai Bulughul Maram.",
-    meta: "3 jenjang",
-  },
-  {
-    icon: ScrollText,
-    title: "Tahfizh & Takhassus",
-    href: { section: "pendidikan", slug: "tahfizh" } as const,
-    text: "Tahfizh reguler 3 tahun untuk santri MTs/MA, atau Takhassus 30 juz penuh dengan ijazah sanad.",
-    meta: "Kuota takhassus 40",
-  },
-];
+/** Tautan tetap per slot kartu program (slot bisa diedit teksnya dari dashboard). */
+const PROGRAM_HREFS = [
+  { section: "pendidikan", slug: "formal" },
+  { section: "pendidikan", slug: "formal" },
+  { section: "pendidikan", slug: "diniyah" },
+  { section: "pendidikan", slug: "tahfizh" },
+] as const;
 
 const GALLERY: { image: ImageKey; caption: string }[] = [
   { image: "tahfizh", caption: "Halaqah ba'da Subuh" },
@@ -120,6 +89,16 @@ const GALLERY: { image: ImageKey; caption: string }[] = [
 
 function Index() {
   const [slide, setSlide] = useState(0);
+  const site = useSiteSettings();
+  const lists = useSiteLists();
+
+  const stats = lists.stats.map((s) => ({ ...s, icon: iconFromName(s.icon) }));
+  const programs = lists.programs.map((p, i) => ({
+    ...p,
+    icon: iconFromName(p.icon),
+    href: PROGRAM_HREFS[i] ?? PROGRAM_HREFS[0]!,
+  }));
+  const psb = lists.psb;
 
   // Konten yang dikelola lewat dashboard admin (/dashboard).
   const { data: saved } = useQuery({
@@ -201,7 +180,7 @@ function Index() {
           <div className="mx-auto w-full max-w-7xl px-4 pb-20 pt-32 sm:px-6 lg:pt-36">
             <div className="max-w-3xl">
               <p className="animate-rise inline-flex items-center gap-2 rounded-full bg-gold/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-gold ring-1 ring-gold/30">
-                PSB {PSB_INFO.year} · Gelombang I dibuka
+                PSB {psb.year} · Gelombang I dibuka
               </p>
               <div key={slide} className="animate-rise">
                 <p className="mt-6 text-sm font-medium uppercase tracking-[0.18em] text-gold">{current.eyebrow}</p>
@@ -274,7 +253,7 @@ function Index() {
             </div>
 
             <dl className="animate-rise mt-12 grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-3" style={{ animationDelay: "480ms" }}>
-              {STATS.map(({ icon: Icon, value, label }) => (
+              {stats.map(({ icon: Icon, value, label }) => (
                 <div key={label} className="flex items-center gap-3 rounded-2xl bg-nav px-4 py-3.5 ring-1 ring-nav-foreground/10 backdrop-blur-md">
                   <span className="grid h-10 w-10 shrink-0 place-items-center rounded-xl bg-gold/15 text-gold">
                     <Icon className="h-5 w-5" />
@@ -294,7 +273,7 @@ function Index() {
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
           <SectionHeading
             eyebrow="Penerimaan Santri Baru"
-            title={`PSB ${PSB_INFO.year}`}
+            title={`PSB ${psb.year}`}
             description="Dua gelombang pendaftaran dalam setahun. Wali santri dapat menghubungi panitia lebih dulu untuk bertanya sebelum mengisi formulir."
             action={
               <Link
@@ -308,7 +287,7 @@ function Index() {
             }
           />
           <div className="mt-10 grid gap-4 md:grid-cols-3">
-            {PSB_INFO.waves.map((w) => (
+            {psb.waves.map((w) => (
               <div key={w.name} className="rounded-xl border border-border bg-card p-6">
                 <p className="eyebrow">{w.name}</p>
                 <p className="mt-3 font-display text-lg font-semibold text-foreground">Pendaftaran {w.period}</p>
@@ -322,11 +301,11 @@ function Index() {
             ))}
             <div className="rounded-xl bg-terracotta-deep p-6 text-accent-foreground">
               <p className="eyebrow text-accent-foreground">Kuota & kontak</p>
-              <p className="mt-3 font-display text-lg font-semibold">{PSB_INFO.quota} santri baru</p>
-              <p className="mt-2 text-sm text-accent-foreground/90">Panitia melayani {SITE.office}.</p>
+              <p className="mt-3 font-display text-lg font-semibold">{psb.quota} santri baru</p>
+              <p className="mt-2 text-sm text-accent-foreground/90">Panitia melayani {site.office}.</p>
               <div className="mt-5 flex flex-wrap gap-3">
                 <a
-                  href={`https://wa.me/${SITE.whatsapp}`}
+                  href={`https://wa.me/${site.whatsapp}`}
                   target="_blank"
                   rel="noreferrer"
                   className="inline-flex items-center gap-2 rounded-full bg-accent px-4 py-2.5 text-sm font-semibold transition-colors hover:bg-terracotta-hover"
@@ -356,7 +335,7 @@ function Index() {
               description="Empat jalur yang bisa dipilih saat mendaftar. Santri boleh mengikuti lebih dari satu program sesuai tes penempatan."
             />
             <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
-              {PROGRAMS.map(({ icon: Icon, title, href, text, meta }) => (
+              {programs.map(({ icon: Icon, title, href, text, meta }) => (
                 <Link
                   key={title}
                   to="/$section/$slug"
@@ -384,7 +363,7 @@ function Index() {
             <div>
               <SectionHeading eyebrow="Kalender" title="Agenda terdekat" />
               <ul className="mt-8 divide-y divide-border rounded-xl border border-border bg-card px-5">
-                {AGENDA.slice(0, 4).map((a) => (
+                {lists.agenda.slice(0, 4).map((a) => (
                   <AgendaRow key={a.title} item={a} compact />
                 ))}
               </ul>
@@ -400,7 +379,7 @@ function Index() {
             <div>
               <SectionHeading eyebrow="Pengumuman" title="Info wali santri" />
               <ul className="mt-8 divide-y divide-border rounded-xl border border-border bg-card px-5">
-                {NOTICES.slice(0, 3).map((n) => (
+                {lists.notices.slice(0, 3).map((n) => (
                   <NoticeRow key={n.title} item={n} />
                 ))}
               </ul>
@@ -479,7 +458,7 @@ function Index() {
         <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:pb-20">
           <SectionHeading eyebrow="Wali santri & alumni" title="Kata mereka tentang Asasunnajaah" />
           <div className="mt-10 grid gap-4 md:grid-cols-2">
-            {TESTIMONIALS.slice(0, 2).map((q) => (
+            {lists.testimonials.slice(0, 2).map((q) => (
               <QuoteCard key={q.name} item={q} />
             ))}
           </div>
@@ -495,16 +474,16 @@ function Index() {
               </h2>
               <p className="mt-4 leading-relaxed text-deep-muted">
                 Wali santri dipersilakan melihat langsung asrama, kelas, dan masjid. Cukup konfirmasi hari
-                kunjungan lewat WhatsApp panitia PSB · {SITE.office}.
+                kunjungan lewat WhatsApp panitia PSB · {site.office}.
               </p>
               <p className="mt-4 inline-flex items-center gap-2 text-sm text-deep-muted">
                 <MapPin className="h-4 w-4 shrink-0 text-gold" />
-                {SITE.address}
+                {site.address}
               </p>
             </div>
             <div className="flex flex-wrap gap-3">
               <a
-                href={`https://wa.me/${SITE.whatsapp}`}
+                href={`https://wa.me/${site.whatsapp}`}
                 target="_blank"
                 rel="noreferrer"
                 className="inline-flex items-center gap-2 rounded-full bg-accent px-6 py-3 text-sm font-semibold shadow-cta transition-colors hover:bg-terracotta-hover"

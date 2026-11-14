@@ -6,7 +6,7 @@ import { saveUploadFile } from "@/lib/uploads";
  * Penyimpanan konten yang bisa dikelola lewat dashboard admin (/dashboard).
  * - Teks & referensi gambar disimpan di MySQL/MariaDB XAMPP (lihat src/lib/db.ts):
  *   tabel hero_slides, news_items, gallery_photos, site_settings.
- * - Berkas gambar unggahan tetap disimpan di folder public/uploads (dilayani sebagai /uploads/...).
+ * - Gambar disimpan di Vercel Blob saat deploy, atau public/uploads saat lokal.
  * - Jika database belum terisi, beranda memakai konten bawaan — situs tidak pernah kosong.
  * Semua akses berkas/database hanya berjalan di server (dynamic import).
  */
@@ -28,9 +28,19 @@ export type SiteContent = {
   hero: HeroContent[];
   news: NewsContent[];
   gallery: GalleryContent[];
+  /** Galeri pada halaman /galeri-kontak (9 slot). */
+  siteGallery: GalleryContent[];
 };
 
-export const EMPTY_CONTENT: SiteContent = { logo: null, hero: [], news: [], gallery: [] };
+export const EMPTY_CONTENT: SiteContent = {
+  logo: null,
+  hero: [],
+  news: [],
+  gallery: [],
+  siteGallery: [],
+};
+
+export const GALLERY_PAGE_SLOTS = 9;
 
 const readContent = async (): Promise<SiteContent> => {
   try {
@@ -44,6 +54,9 @@ const readContent = async (): Promise<SiteContent> => {
     const [galleryRows] = await pool.query(
       "SELECT slot, caption, image_url FROM gallery_photos ORDER BY slot",
     );
+    const [siteGalleryRows] = await pool.query(
+      "SELECT slot, caption, image_url FROM page_gallery ORDER BY slot",
+    );
     const [settingRows] = await pool.query(
       "SELECT value FROM site_settings WHERE name = 'logo' LIMIT 1",
     );
@@ -55,6 +68,7 @@ const readContent = async (): Promise<SiteContent> => {
     const heroList = heroRows as unknown as HeroRow[];
     const newsList = newsRows as unknown as NewsRow[];
     const galleryList = galleryRows as unknown as GalleryRow[];
+    const siteGalleryList = siteGalleryRows as unknown as GalleryRow[];
     const settingList = settingRows as unknown as SettingRow[];
 
     return {
@@ -79,6 +93,13 @@ const readContent = async (): Promise<SiteContent> => {
       })),
       gallery: [0, 1, 2, 3, 4, 5].map((i) => {
         const r = galleryList.find((g) => Number(g.slot) === i);
+        return {
+          caption: r?.caption ?? "",
+          imageUrl: r?.image_url ?? null,
+        };
+      }),
+      siteGallery: [...Array(GALLERY_PAGE_SLOTS).keys()].map((i) => {
+        const r = siteGalleryList.find((g) => Number(g.slot) === i);
         return {
           caption: r?.caption ?? "",
           imageUrl: r?.image_url ?? null,
@@ -122,6 +143,17 @@ export const saveSiteContent = createServerFn({ method: "POST" })
         const g = data.gallery[i];
         if (g) {
           await conn.query("INSERT INTO gallery_photos (slot, caption, image_url) VALUES (?, ?, ?)", [
+            i,
+            g.caption ?? "",
+            g.imageUrl ?? null,
+          ]);
+        }
+      }
+      await conn.query("DELETE FROM page_gallery");
+      for (let i = 0; i < GALLERY_PAGE_SLOTS; i++) {
+        const g = data.siteGallery?.[i];
+        if (g) {
+          await conn.query("INSERT INTO page_gallery (slot, caption, image_url) VALUES (?, ?, ?)", [
             i,
             g.caption ?? "",
             g.imageUrl ?? null,
