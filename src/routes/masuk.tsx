@@ -3,6 +3,7 @@ import { useState } from "react";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { Loader2, LogIn, LockKeyhole } from "lucide-react";
 
+import { LogoMark } from "@/components/site/LogoMark";
 import { getMember, loginMember, logoutMember } from "@/lib/auth";
 
 export const Route = createFileRoute("/masuk")({
@@ -76,15 +77,19 @@ function MasukPage() {
             setError("");
             if (!login.isPending) login.mutate();
           }}
-          className="rounded-xl border border-border bg-card p-6 shadow-sm"
+          className="animate-rise motion-reduce:animate-none rounded-xl border border-border bg-card p-6 shadow-sm"
         >
-          <div className="inline-flex h-10 w-10 items-center justify-center rounded-lg bg-secondary text-primary">
-            <LogIn className="h-5 w-5" />
+          <div className="mb-4 flex items-center gap-3">
+            <div className="grid h-14 w-14 shrink-0 place-items-center rounded-xl bg-secondary p-2">
+              <LogoMark className="h-12" />
+            </div>
+            <div>
+              <h1 className="font-display text-xl font-extrabold text-foreground">Masuk</h1>
+              <p className="mt-1 text-sm text-muted-foreground">
+                Wali santri, alumni, dan pengelola pondok.
+              </p>
+            </div>
           </div>
-          <h1 className="mt-3 font-display text-xl font-extrabold text-foreground">Masuk</h1>
-          <p className="mt-1 text-sm text-muted-foreground">
-            Wali santri, alumni, dan pengelola pondok.
-          </p>
           <label className="mt-5 block">
             <span className="text-sm font-semibold text-foreground">Username</span>
             <input
@@ -122,15 +127,6 @@ function MasukPage() {
             ← Kembali ke beranda
           </Link>
         </form>
-        <div className="mt-4 rounded-xl border border-border bg-card/60 p-4 text-xs text-muted-foreground">
-          <p className="font-semibold text-foreground">Akun contoh (data awal):</p>
-          <p className="mt-1">
-            Admin: <code>admin</code> / <code>admin123</code> · Wali: <code>wali01</code> / <code>wali123</code> ·
-            Alumni: <code>alumni01</code> / <code>alumni123</code> · Santri: <code>santri01</code> /{" "}
-            <code>santri123</code>
-          </p>
-          <p className="mt-1">Akun wali/alumni/santri ditambahkan oleh admin lewat Dashboard → Wali &amp; Alumni.</p>
-        </div>
       </div>
     </div>
   );
