@@ -12,3 +12,5 @@ Allow: /
 
 User-agent: *
 Allow: /
+
+Sitemap: https://pp-asasunnajaah.vercel.app/sitemap.xml
