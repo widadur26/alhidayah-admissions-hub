@@ -64,8 +64,9 @@ npm run dev
 ## Deploy to Railway
 
 The `main` branch can be deployed automatically by connecting this GitHub
-repository to a Railway service. Railway uses `railway.json` to build the
-Node.js server while Vercel continues to use its Vercel preset.
+repository to a Railway service. In the Railway service settings, set the
+build command to `NITRO_PRESET=node-server npm run build` and the start command
+to `node .output/server/index.mjs`. Vercel continues to use its Vercel preset.
 
 The service also needs production environment variables:
 
@@ -77,5 +78,6 @@ The service also needs production environment variables:
   remain available after Railway redeploys.
 - `COOKIE_SECURE=1` to mark authentication cookies as secure over HTTPS.
 
-After connecting the repository, select `main` as the deploy branch and add
-these variables in Railway's service settings. Do not commit secret values.
+Select `main` as the deploy branch and add these variables in Railway's service
+settings. Pushes to `main` then trigger deployments automatically. Do not
+commit secret values.
