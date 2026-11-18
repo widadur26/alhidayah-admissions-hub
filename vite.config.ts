@@ -15,8 +15,8 @@ export default defineConfig({
     // nitro/vite builds from this
     server: { entry: "server" },
   },
-  // Deploy ke Vercel: pin preset agar server functions berjalan sebagai Vercel Functions.
+  // Default deploy target is Vercel; Railway overrides this during its build.
   nitro: {
-    preset: "vercel",
+    preset: process.env.NITRO_PRESET || "vercel",
   },
 });

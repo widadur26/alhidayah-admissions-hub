@@ -60,3 +60,22 @@ cd <repository-name>
 npm i
 npm run dev
 ```
+
+## Deploy to Railway
+
+The `main` branch can be deployed automatically by connecting this GitHub
+repository to a Railway service. Railway uses `railway.json` to build the
+Node.js server while Vercel continues to use its Vercel preset.
+
+The service also needs production environment variables:
+
+- `MYSQL_HOST`, `MYSQL_PORT`, `MYSQL_USER`, `MYSQL_PASSWORD`, and
+  `MYSQL_DATABASE`, linked to the Railway MySQL service values.
+- `ADMIN_PASSWORD` and `ADMIN_SECRET`, set to unique, strong secrets (do not
+  use the local development defaults).
+- `BLOB_READ_WRITE_TOKEN`, linked to a Vercel Blob token, so uploaded images
+  remain available after Railway redeploys.
+- `COOKIE_SECURE=1` to mark authentication cookies as secure over HTTPS.
+
+After connecting the repository, select `main` as the deploy branch and add
+these variables in Railway's service settings. Do not commit secret values.
