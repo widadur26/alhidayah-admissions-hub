@@ -25,22 +25,35 @@ import { NEWS } from "@/content/site";
 export const Route = createFileRoute("/")({
   head: () => ({
     meta: [
-      { title: "PP Asasunnajaah Kesugihan–Cilacap · Madrasah, Tahfizh & Kitab Kuning" },
+      { title: "Pondok Pesantren Asasunnajaah | Kesugihan, Cilacap" },
       {
         name: "description",
         content:
-          "Pondok Pesantren Asasunnajaah di Kesugihan, Cilacap: MTs & MA terakreditasi, madrasah diniyah, tahfizh Al-Qur'an, dan pengajian kitab kuning. Info lengkap PSB 2027/2028 di sini.",
+          "Website resmi Pondok Pesantren Asasunnajaah (Asaasunnajaah) di Kesugihan, Cilacap. Info MTs/MA, tahfizh, diniyah, kitab kuning, dan pendaftaran santri baru.",
       },
       {
         property: "og:title",
-        content: "PP Asasunnajaah Kesugihan–Cilacap · Madrasah, Tahfizh & Kitab Kuning",
+        content: "Pondok Pesantren Asasunnajaah | Kesugihan, Cilacap",
       },
       {
         property: "og:description",
-        content: "PSB santri baru 2027/2028 dibuka. Lihat program, biaya, dan formulir pendaftaran online.",
+        content:
+          "Website resmi Pondok Pesantren Asasunnajaah (Asaasunnajaah) di Kesugihan, Cilacap. Lihat program pendidikan dan pendaftaran santri baru.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
+    ],
+    scripts: [
+      {
+        type: "application/ld+json",
+        children: JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "EducationalOrganization",
+          name: "Pondok Pesantren Asasunnajaah",
+          alternateName: "Pondok Pesantren Asaasunnajaah",
+          url: "https://pp-asasunnajaah.vercel.app/",
+        }),
+      },
     ],
   }),
   component: Index,
