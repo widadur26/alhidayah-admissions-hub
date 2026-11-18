@@ -10,6 +10,14 @@ describe("normalizeSettings", () => {
     expect(s.brandTitle).toBe(DEFAULT_SETTINGS.brandTitle);
     expect(s.whatsapp).toBe(DEFAULT_SETTINGS.whatsapp);
     expect(s.socials.length).toBeGreaterThan(0);
+    expect(s.contactPersons.putra.length + s.contactPersons.putri.length).toBeGreaterThan(0);
+  });
+
+  it("membentuk nomor WhatsApp narahubung dari nomor telepon", () => {
+    const s = normalizeSettings({ contactPersons: { putra: [{ name: "Uji", phone: "0852-8198-8682" }] } });
+    expect(s.contactPersons.putra[0]?.whatsapp).toBe("6285281988682");
+    // grup yang tidak dikirim tetap memakai bawaan
+    expect(s.contactPersons.putri.length).toBe(DEFAULT_SETTINGS.contactPersons.putri.length);
   });
 
   it("mengambil nilai dari database", () => {
@@ -23,7 +31,8 @@ describe("normalizeSettings", () => {
 describe("normalizeLists", () => {
   it("fallback ke bawaan saat kosong", () => {
     const l = normalizeLists({});
-    expect(l.stats.length).toBe(3);
+    // Statistik angka belum tersedia dari pondok, jadi bawaan boleh kosong.
+    expect(l.stats.length).toBe(DEFAULT_LISTS.stats.length);
     expect(l.programs.length).toBe(4);
     expect(l.agenda.length).toBe(DEFAULT_LISTS.agenda.length);
     expect(l.psb.waves.length).toBeGreaterThan(0);

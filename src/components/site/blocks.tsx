@@ -16,6 +16,15 @@ function BlockHeading({ children, intro }: { children: React.ReactNode; intro?: 
   );
 }
 
+/** Keadaan kosong: dipakai saat daftar konten belum diisi dari dashboard. */
+function EmptyState({ label }: { label: string }) {
+  return (
+    <p className="rounded-xl border border-dashed border-border bg-card px-5 py-8 text-center text-sm text-muted-foreground">
+      {label}
+    </p>
+  );
+}
+
 function initials(name: string) {
   const clean = name.replace(/^(KH\.|K\.|Dr\.|Drs\.|dr\.|Ust\.|Ustadzah|Nyai|Hj\.|H\.|Ibu)\s+/g, "").replace(/^(Hj\.|H\.)\s+/, "");
   return clean
@@ -358,57 +367,77 @@ function RenderBlock({ block }: { block: Block }) {
       return (
         <section>
           {block.heading && <BlockHeading>{block.heading}</BlockHeading>}
-          <div className="grid gap-5 sm:grid-cols-2">
-            {block.items.map((a) => (
-              <ArticleCard key={a.title} article={a} showAuthor={block.showAuthor} />
-            ))}
-          </div>
+          {block.items.length === 0 ? (
+            <EmptyState label="Belum ada tulisan yang dipublikasikan." />
+          ) : (
+            <div className="grid gap-5 sm:grid-cols-2">
+              {block.items.map((a) => (
+                <ArticleCard key={a.title} article={a} showAuthor={block.showAuthor} />
+              ))}
+            </div>
+          )}
         </section>
       );
     case "agenda":
       return (
         <section>
           {block.heading && <BlockHeading>{block.heading}</BlockHeading>}
-          <ul className="divide-y divide-border rounded-xl border border-border bg-card px-5">
-            {block.items.map((a) => (
-              <AgendaRow key={a.title} item={a} />
-            ))}
-          </ul>
+          {block.items.length === 0 ? (
+            <EmptyState label="Belum ada agenda yang dijadwalkan." />
+          ) : (
+            <ul className="divide-y divide-border rounded-xl border border-border bg-card px-5">
+              {block.items.map((a) => (
+                <AgendaRow key={a.title} item={a} />
+              ))}
+            </ul>
+          )}
         </section>
       );
     case "notices":
       return (
         <section>
           {block.heading && <BlockHeading>{block.heading}</BlockHeading>}
-          <ul className="divide-y divide-border rounded-xl border border-border bg-card px-5">
-            {block.items.map((n) => (
-              <NoticeRow key={n.title} item={n} />
-            ))}
-          </ul>
+          {block.items.length === 0 ? (
+            <EmptyState label="Belum ada pengumuman." />
+          ) : (
+            <ul className="divide-y divide-border rounded-xl border border-border bg-card px-5">
+              {block.items.map((n) => (
+                <NoticeRow key={n.title} item={n} />
+              ))}
+            </ul>
+          )}
         </section>
       );
     case "quotes":
       return (
         <section>
           <BlockHeading>{block.heading}</BlockHeading>
-          <div className="grid gap-4 md:grid-cols-2">
-            {block.items.map((q) => (
-              <QuoteCard key={q.name} item={q} />
-            ))}
-          </div>
+          {block.items.length === 0 ? (
+            <EmptyState label="Belum ada testimoni yang dipublikasikan." />
+          ) : (
+            <div className="grid gap-4 md:grid-cols-2">
+              {block.items.map((q) => (
+                <QuoteCard key={q.name} item={q} />
+              ))}
+            </div>
+          )}
         </section>
       );
     case "partners":
       return (
         <section>
           <BlockHeading intro={block.intro}>{block.heading}</BlockHeading>
-          <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
-            {block.items.map((p) => (
-              <li key={p} className="grid min-h-20 place-items-center bg-card px-4 py-5 text-center text-sm font-semibold text-foreground/80">
-                {p}
-              </li>
-            ))}
-          </ul>
+          {block.items.length === 0 ? (
+            <EmptyState label="Data mitra belum dipublikasikan." />
+          ) : (
+            <ul className="grid grid-cols-2 gap-px overflow-hidden rounded-xl border border-border bg-border sm:grid-cols-3">
+              {block.items.map((p) => (
+                <li key={p} className="grid min-h-20 place-items-center bg-card px-4 py-5 text-center text-sm font-semibold text-foreground/80">
+                  {p}
+                </li>
+              ))}
+            </ul>
+          )}
         </section>
       );
     case "callout":

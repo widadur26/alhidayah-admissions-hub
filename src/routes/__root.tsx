@@ -85,7 +85,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
       { name: "viewport", content: "width=device-width, initial-scale=1" },
       { name: "google-site-verification", content: "LLJr7L-18QPeqCvUuLMvemu9i6re8pwWt7Cg01zRzEA" },
       { title: "Pondok Pesantren Asasunnajaah — Kesugihan, Cilacap" },
-      { name: "description", content: "Website resmi Pondok Pesantren Asasunnajaah Kesugihan, Cilacap: info PSB online, program pendidikan MTs/MA & tahfizh, berita, dan kegiatan santri." },
+      { name: "description", content: "Website resmi Pondok Pesantren Asasunnajaah Kesugihan, Cilacap: info pendaftaran santri baru, kegiatan santri, jadwal harian, dan fasilitas pondok." },
       { name: "author", content: "Pondok Pesantren Asasunnajaah" },
       { property: "og:title", content: "Pondok Pesantren Asasunnajaah — Kesugihan, Cilacap" },
       { property: "og:description", content: "Website resmi Pondok Pesantren Asasunnajaah Kesugihan, Cilacap: info PSB online, program pendidikan, dan kegiatan santri." },

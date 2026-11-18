@@ -68,6 +68,7 @@ import {
   saveSiteSettings,
   type SiteLists,
   type SiteSettings,
+  waDigits,
 } from "@/lib/site-settings";
 import { blocksToEditable, iconNames } from "@/lib/block-icons";
 import { getPage } from "@/content/pages";
@@ -797,6 +798,13 @@ function SettingsAdmin() {
   const set = (patch: Partial<SiteSettings>) => setForm({ ...form, ...patch });
   const setSocial = (i: number, patch: Partial<{ label: string; href: string }>) =>
     set({ socials: form.socials.map((s, j) => (j === i ? { ...s, ...patch } : s)) });
+  const setContact = (group: "putra" | "putri", i: number, patch: Partial<{ name: string; phone: string; whatsapp: string }>) =>
+    set({
+      contactPersons: {
+        ...form.contactPersons,
+        [group]: form.contactPersons[group].map((p, j) => (j === i ? { ...p, ...patch } : p)),
+      },
+    });
 
   return (
     <>
@@ -859,6 +867,69 @@ function SettingsAdmin() {
             </button>
           )}
         </div>
+      </Panel>
+
+      <Panel
+        title="Narahubung (contact person)"
+        desc="Tampil sebagai kartu kontak di halaman Galeri & Kontak. Nomor WhatsApp dibentuk otomatis dari nomor telepon (08… menjadi 628…), dan bisa ditimpa manual bila perlu."
+      >
+        {(["putra", "putri"] as const).map((group) => (
+          <div key={group} className="mb-6 last:mb-0">
+            <p className="eyebrow text-muted-foreground">{group === "putra" ? "Pondok putra" : "Pondok putri"}</p>
+            <div className="mt-3 space-y-3">
+              {form.contactPersons[group].map((p, i) => (
+                <div key={i} className="grid gap-3 sm:grid-cols-2">
+                  <Field
+                    label={`Nama ${i + 1}`}
+                    value={p.name}
+                    onChange={(v) => setContact(group, i, { name: v })}
+                    placeholder="Kang Imam"
+                  />
+                  <Field
+                    label="Nomor telepon (yang ditampilkan)"
+                    value={p.phone}
+                    onChange={(v) => setContact(group, i, { phone: v, whatsapp: waDigits(v) })}
+                    placeholder="+62 852-8198-8682"
+                  />
+                </div>
+              ))}
+            </div>
+            <div className="mt-3 flex flex-wrap gap-2">
+              <button
+                type="button"
+                onClick={() =>
+                  set({
+                    contactPersons: {
+                      ...form.contactPersons,
+                      [group]: [...form.contactPersons[group], { name: "", phone: "", whatsapp: "" }],
+                    },
+                  })
+                }
+                className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-xs font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+              >
+                <Plus className="h-3.5 w-3.5" />
+                Tambah narahubung
+              </button>
+              {form.contactPersons[group].length > 1 && (
+                <button
+                  type="button"
+                  onClick={() =>
+                    set({
+                      contactPersons: {
+                        ...form.contactPersons,
+                        [group]: form.contactPersons[group].slice(0, -1),
+                      },
+                    })
+                  }
+                  className="inline-flex items-center gap-1.5 rounded-full px-4 py-2 text-xs font-semibold text-destructive ring-1 ring-destructive/30 transition-colors hover:bg-destructive/10"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                  Hapus yang terakhir
+                </button>
+              )}
+            </div>
+          </div>
+        ))}
       </Panel>
 
       <Panel title="Teks footer" desc="Bagian bawah setiap halaman situs.">

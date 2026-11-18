@@ -1,352 +1,250 @@
-import {
-  Bath,
-  BedDouble,
-  BookOpen,
-
-  Cpu,
-  Dumbbell,
-  FlaskConical,
-  HeartPulse,
-  Landmark,
-  Library,
-  Mic2,
-  Music,
-  Palette,
-  PenLine,
-  Shirt,
-  Soup,
-  Store,
-  Swords,
-  Tent,
-  Trophy,
-  Volleyball,
-  Wifi,
-} from "lucide-react";
-
 import type { ContentPage } from "./blocks";
-import { AGENDA, KAJIAN, NEWS, NOTICES, PARTNERS, PSB_INFO, TESTIMONIALS } from "./site";
+import { AGENDA, BIAYA, KAJIAN, NEWS, NOTICES, PSB_INFO } from "./site";
 
+/**
+ * Konten halaman.
+ *
+ * Prinsip: hanya informasi yang benar-benar diketahui yang ditulis lengkap.
+ * Bagian yang naskahnya belum tersedia diberi keterangan "belum tersedia" agar
+ * situs tidak memuat data karangan (nama pengasuh, prestasi, atau angka yang
+ * belum dipastikan).
+ */
 type PageMap = Record<string, Record<string, ContentPage>>;
+
+/** Blok keterangan untuk halaman yang datanya belum diterima dari pondok. */
+const belumTersedia = (judul: string, catatan: string) => ({
+  type: "callout" as const,
+  title: judul,
+  text: catatan,
+});
 
 export const PAGES: PageMap = {
   "tentang-kami": {
     profil: {
       title: "Profil Pesantren",
       summary:
-        "Berdiri sejak 1987 di Kesugihan, Cilacap, Asasunnajaah tumbuh dari sebuah langgar kecil menjadi pesantren terpadu dengan lebih dari 1.200 santri.",
+        "Pondok Pesantren Asaasunnajaah Kesugihan, Cilacap — pesantren berasrama untuk santri putra dan putri.",
       image: "hero",
       blocks: [
         {
           type: "prose",
-          heading: "Dari langgar kayu ke kampus 6 hektar",
+          heading: "Sekilas Asaasunnajaah",
           paragraphs: [
-            "Pondok Pesantren Asasunnajaah dirintis oleh KH. Abdul Karim Mahfudz pada 12 Rabiul Awal 1408 H (1987 M). Awalnya hanya 17 santri yang mengaji kitab di langgar kayu milik keluarga, dengan sistem sorogan dan bandongan sebagaimana pesantren salaf di Jawa Tengah.",
-            "Tahun 1996 pesantren membuka Madrasah Tsanawiyah, disusul Madrasah Aliyah pada 2003. Sejak 2010, program Tahfizh Al-Qur'an dikembangkan dengan sanad yang bersambung kepada KH. Arwani Amin Kudus.",
-            "Hari ini Asasunnajaah dikelola oleh Yayasan Asasunnajaah Kesugihan dan diasuh oleh KH. Abdurrahman Hakim, putra sulung pendiri. Kami tetap menjaga tradisi kitab kuning sambil membekali santri dengan pendidikan formal yang terakreditasi A.",
+            "Pondok Pesantren Asaasunnajaah berada di Kesugihan, Cilacap, Jawa Tengah, dan menerima santri putra maupun santri putri yang mukim di asrama.",
+            "Kegiatan santri berjalan dari Subuh hingga malam: sholat berjamaah, tadarrus Al-Qur'an, ngaji bandungan dan sorogan kitab kuning, sekolah formal bagi yang sekolah, madrasah diniyah, musyawarah, dan takror.",
+            "Santri putra menempati asrama lantai 2, santri putri menempati asrama lantai 4. Kegiatan mingguan, bulanan, dan tahunan dilaksanakan bersama pengasuh dan masyayikh pondok.",
           ],
           image: "asrama",
-          caption: "Kompleks asrama putra, dibangun bertahap sejak 2008.",
-        },
-        {
-          type: "facts",
-          items: [
-            { value: "1987", label: "Tahun berdiri" },
-            { value: "1.248", label: "Santri mukim 2026" },
-            { value: "86", label: "Asatidz & tenaga pendidik" },
-            { value: "6,2 ha", label: "Luas kampus" },
-          ],
+          caption: "Asrama santri Pondok Pesantren Asaasunnajaah Kesugihan.",
         },
         {
           type: "table",
-          heading: "Identitas lembaga",
+          heading: "Identitas pondok",
           columns: ["Keterangan", "Data"],
           rows: [
-            ["Nama lembaga", "Pondok Pesantren Asasunnajaah"],
-            ["Nomor Statistik Pesantren", "510035060017"],
-            ["Yayasan", "Yayasan Asasunnajaah Kesugihan (AHU-0012345.AH.01.04)"],
-            ["Akreditasi MTs / MA", "A (BAN-S/M 2024) / A (BAN-S/M 2023)"],
-            ["Pengasuh", "KH. Abdurrahman Hakim"],
-            ["Alamat", "Jl. Raya Kesugihan No. 17, Kesugihan, Cilacap, Jawa Tengah"],
+            ["Nama lembaga", "Pondok Pesantren Asaasunnajaah"],
+            ["Lokasi", "Kesugihan, Cilacap, Jawa Tengah"],
+            ["Santri", "Putra dan putri (mukim)"],
+            ["Asrama", "Putra lantai 2 · Putri lantai 4"],
+            [
+              "Fasilitas",
+              "Ruang tamu, perpustakaan, MCK/WC, gudang, dapur, kantor, kantin, aula, BMA",
+            ],
           ],
         },
+        belumTersedia(
+          "Sejarah & data kelembagaan",
+          "Naskah sejarah, tahun berdiri, susunan yayasan, dan nomor statistik pondok belum kami terima. Silakan menghubungi narahubung pondok untuk keterangan resmi.",
+        ),
       ],
     },
     "visi-misi": {
       title: "Visi & Misi",
-      summary: "Arah yang kami pegang dalam mendidik santri: kokoh dalam iman, luhur dalam adab, luas dalam wawasan.",
+      summary: "Arah pendidikan Pondok Pesantren Asaasunnajaah Kesugihan.",
       image: "halaqah",
       blocks: [
-        { type: "callout", title: "Visi", text: "Terwujudnya generasi Rabbani yang berakhlaqul karimah, mutafaqqih fiddin, dan berwawasan global pada tahun 2035." },
-        {
-          type: "list",
-          heading: "Misi",
-          style: "numbered",
-          items: [
-            "Menyelenggarakan pendidikan Islam berbasis kitab kuning dengan sanad keilmuan yang jelas.",
-            "Membina santri menghafal dan mengamalkan Al-Qur'an dengan bacaan yang mutqin.",
-            "Menyelenggarakan pendidikan formal yang bermutu dan terakreditasi.",
-            "Menanamkan adab, kemandirian, dan kepemimpinan melalui kehidupan berasrama.",
-            "Mengembangkan bahasa Arab dan Inggris sebagai bekal studi lanjut dan dakwah.",
-            "Membangun jejaring dengan perguruan tinggi, alumni, dan masyarakat.",
-          ],
-        },
-        {
-          type: "features",
-          heading: "Nilai yang kami jaga",
-          columns: 3,
-          items: [
-            { icon: BookOpen, title: "Ikhlas", text: "Belajar dan mengajar diniatkan karena Allah, bukan semata ijazah." },
-            { icon: Landmark, title: "Ta'dzim", text: "Menghormati guru, kitab, dan sesama sebagai jalan keberkahan ilmu." },
-            { icon: PenLine, title: "Mandiri", text: "Santri mengurus diri, kamar, dan waktunya sendiri sejak hari pertama." },
-          ],
-        },
+        belumTersedia(
+          "Naskah visi & misi",
+          "Naskah visi dan misi resmi pondok belum kami terima, sehingga tidak kami tulis sendiri. Silakan menghubungi narahubung pondok putra atau putri pada halaman Galeri & Kontak.",
+        ),
       ],
     },
     struktur: {
-      title: "Struktur Organisasi & Sanad",
-      summary: "Susunan pengasuh dan pengelola pesantren, serta silsilah keilmuan yang menjadi rujukan pengajaran kami.",
+      title: "Struktur Organisasi",
+      summary: "Susunan pengasuh dan pengelola Pondok Pesantren Asaasunnajaah Kesugihan.",
       image: "kitab",
       blocks: [
-        {
-          type: "people",
-          heading: "Dewan Pengasuh",
-          items: [
-            { name: "KH. Abdurrahman Hakim", role: "Pengasuh Utama" },
-            { name: "Nyai Hj. Masruroh Hakim", role: "Pengasuh Pondok Putri" },
-            { name: "KH. Muhammad Ilyas, Lc., M.A.", role: "Wakil Pengasuh, Bidang Ta'lim" },
-            { name: "K. Ahmad Nawawi, Al-Hafizh", role: "Koordinator Tahfizh" },
-          ],
-        },
-        {
-          type: "people",
-          heading: "Pengelola Lembaga",
-          items: [
-            { name: "Dr. Ahmad Fauzan, M.Pd.", role: "Ketua Yayasan" },
-            { name: "Drs. H. Mahmudi, M.Pd.I.", role: "Kepala MA Asasunnajaah" },
-            { name: "Siti Khoiriyah, S.Pd., M.Pd.", role: "Kepala MTs Asasunnajaah" },
-            { name: "Ust. Muhammad Syafi'i, Lc.", role: "Kepala Madrasah Diniyah" },
-            { name: "Ust. Hasan Basri, S.H.", role: "Kepala Kesantrian Putra" },
-            { name: "Ustadzah Umi Kultsum, S.Ag.", role: "Kepala Kesantrian Putri" },
-          ],
-        },
-        {
-          type: "chain",
-          heading: "Sanad Al-Qur'an (Qira'ah Imam 'Ashim riwayat Hafsh)",
-          intro: "Sanad bacaan yang diijazahkan kepada santri tahfizh yang khatam 30 juz bil ghaib.",
-          items: [
-            { name: "Rasulullah ﷺ", note: "Menerima dari Malaikat Jibril" },
-            { name: "Imam 'Ashim bin Abi An-Najud", note: "Kufah, w. 127 H" },
-            { name: "Imam Hafsh bin Sulaiman", note: "Perawi bacaan Imam 'Ashim" },
-            { name: "Syaikh Ahmad Abdul Aziz Az-Zayyat", note: "Mesir" },
-            { name: "KH. Arwani Amin", note: "Kudus, Jawa Tengah" },
-            { name: "KH. Abdul Karim Mahfudz", note: "Muassis Asasunnajaah" },
-            { name: "KH. Abdurrahman Hakim", note: "Pengasuh saat ini" },
-          ],
-        },
+        belumTersedia(
+          "Susunan pengasuh & pengelola",
+          "Daftar nama dewan pengasuh, asatidz, dan pengurus pondok belum kami terima. Halaman ini akan diisi setelah data resmi tersedia.",
+        ),
       ],
     },
     fasilitas: {
       title: "Fasilitas",
-      summary: "Sarana di kampus 6,2 hektar yang mendukung kegiatan belajar, ibadah, dan kehidupan sehari-hari santri.",
+      summary:
+        "Sarana penunjang belajar, ibadah, dan kehidupan sehari-hari santri di Pondok Pesantren Asaasunnajaah Kesugihan.",
       image: "asrama",
       blocks: [
         {
-          type: "features",
-          columns: 3,
+          type: "list",
+          heading: "Fasilitas pondok",
+          intro: "Fasilitas yang tercatat pada brosur resmi pondok.",
+          style: "check",
           items: [
-            { icon: Landmark, title: "Masjid Jami'", text: "Daya tampung 1.500 jamaah, pusat shalat berjamaah dan pengajian umum.", meta: "1 unit" },
-            { icon: BedDouble, title: "Asrama putra & putri", text: "Terpisah lokasi; 1 kamar berisi 10–12 santri dengan lemari pribadi.", meta: "42 kamar" },
-            { icon: BookOpen, title: "Gedung madrasah", text: "Ruang kelas MTs, MA, dan diniyah dengan proyektor di setiap kelas.", meta: "36 kelas" },
-            { icon: Library, title: "Perpustakaan", text: "Koleksi kitab turats dan buku umum, terbuka hingga pukul 21.00.", meta: "11.400 judul" },
-            { icon: FlaskConical, title: "Laboratorium IPA", text: "Lab fisika, kimia, dan biologi untuk jurusan IPA MA.", meta: "3 lab" },
-            { icon: Cpu, title: "Laboratorium komputer", text: "40 unit PC dan jaringan fiber untuk ANBK dan kelas TIK.", meta: "2 lab" },
-            { icon: HeartPulse, title: "Poskestren", text: "Klinik pesantren dengan perawat jaga 24 jam dan dokter mitra.", meta: "24 jam" },
-            { icon: Soup, title: "Dapur & ruang makan", text: "Makan tiga kali sehari dengan menu yang disusun ahli gizi.", meta: "3x sehari" },
-            { icon: Dumbbell, title: "Lapangan olahraga", text: "Lapangan futsal, voli, bulu tangkis, dan area panahan.", meta: "4 lapangan" },
-            { icon: Store, title: "Koperasi santri", text: "Kebutuhan harian, kitab, dan seragam dengan harga koperasi.", meta: "1 unit" },
-            { icon: Bath, title: "Sanitasi", text: "Kamar mandi dengan rasio 1:8 dan air dari sumur bor sendiri.", meta: "96 bilik" },
-            { icon: Wifi, title: "Ruang wali santri", text: "Ruang tamu dan layanan video call terjadwal untuk wali santri.", meta: "2 ruang" },
+            "Ruang tamu",
+            "Asrama putri (lantai 4)",
+            "Asrama putra (lantai 2)",
+            "Perpustakaan",
+            "MCK/WC",
+            "Gudang",
+            "Dapur",
+            "Kantor",
+            "Kantin",
+            "Aula",
+            "BMA (Baitul Mal Asaasunnajaah)",
           ],
         },
       ],
     },
     "mitra-alumni": {
       title: "Mitra & Alumni",
-      summary: "Lebih dari 6.000 alumni berkhidmah di berbagai bidang. Kami juga bekerja sama dengan lembaga pendidikan dan pemerintah.",
+      summary: "Jejaring kerja sama dan ikatan alumni Pondok Pesantren Asaasunnajaah.",
       image: "wisuda",
       blocks: [
-        { type: "partners", heading: "Lembaga mitra", intro: "Kerja sama beasiswa, studi lanjut, pembinaan, dan layanan kesehatan.", items: PARTNERS },
-        {
-          type: "facts",
-          items: [
-            { value: "6.300+", label: "Total alumni" },
-            { value: "78%", label: "Melanjutkan ke perguruan tinggi" },
-            { value: "142", label: "Alumni studi di Timur Tengah" },
-            { value: "37", label: "Angkatan wisuda" },
-          ],
-        },
-        { type: "quotes", heading: "Kata alumni", items: TESTIMONIALS },
-        { type: "callout", title: "Ikatan Alumni Asasunnajaah (IKASUN)", text: "Alumni dapat memperbarui data dan bergabung dengan koordinator wilayah melalui sekretariat IKASUN di kantor pesantren." },
+        belumTersedia(
+          "Data mitra & alumni",
+          "Daftar lembaga mitra dan data alumni belum kami terima. Kegiatan yang sudah berjalan antara lain Halal Bihalal alumni dan wali santri serta Haul Masyayikh setiap tahun.",
+        ),
       ],
     },
   },
 
   pendidikan: {
     formal: {
-      title: "Pendidikan Formal",
-      summary: "MTs dan MA Asasunnajaah menjalankan kurikulum Kementerian Agama dengan jam pesantren yang tetap utuh.",
+      title: "Sekolah Formal",
+      summary: "Sekolah formal santri berlangsung pagi hari, berdampingan dengan kegiatan pondok.",
       image: "kelas",
       blocks: [
         {
-          type: "features",
-          columns: 2,
-          items: [
-            { icon: BookOpen, title: "MTs Asasunnajaah", text: "Jenjang kelas VII–IX. Kurikulum Merdeka, penguatan bahasa Arab dan Inggris, serta tahsin Al-Qur'an harian.", meta: "Akreditasi A · 412 siswa" },
-            { icon: FlaskConical, title: "MA Asasunnajaah", text: "Jenjang kelas X–XII dengan peminatan IPA, IPS, dan Keagamaan. Bimbingan masuk PTN dan Timur Tengah.", meta: "Akreditasi A · 386 siswa" },
-          ],
-        },
-        {
-          type: "prose",
-          heading: "Pagi madrasah, sore dan malam pesantren",
-          paragraphs: [
-            "Kegiatan madrasah formal berlangsung pukul 07.00–13.30. Setelah itu santri beristirahat, lalu masuk Madrasah Diniyah pada sore hari dan pengajian kitab ba'da Maghrib.",
-            "Dengan pembagian ini santri tidak perlu memilih antara ijazah negeri dan ilmu agama. Rata-rata nilai Ujian Madrasah MA kami 2026 adalah 87,4, dan 41 lulusan diterima di PTN melalui jalur SNBP.",
-          ],
-          image: "kelas",
-        },
-        {
           type: "table",
-          heading: "Peminatan Madrasah Aliyah",
-          columns: ["Peminatan", "Mata pelajaran khas", "Kuota/tahun"],
+          heading: "Posisi sekolah formal dalam jadwal harian",
+          columns: ["Waktu", "Kegiatan"],
           rows: [
-            ["IPA", "Biologi, Kimia, Fisika, Matematika Lanjut", "64"],
-            ["IPS", "Ekonomi, Sosiologi, Geografi", "32"],
-            ["Keagamaan", "Tafsir, Hadits, Ushul Fiqih, Bahasa Arab Lanjut", "32"],
+            ["05.30–06.15", "Tadarrus Al-Qur'an dan ngaji bandungan kitab kuning"],
+            ["06.30–12.00", "Sekolah formal (bagi yang sekolah)"],
+            ["12.00–13.00", "Sholat Dzuhur berjamaah"],
+            ["14.00–15.00", "Ngaji kitab bandungan"],
+            ["20.30–22.00", "Madrasah Diniyah"],
           ],
+          note: "Jadwal lengkap ada pada halaman Kegiatan Santri.",
         },
+        belumTersedia(
+          "Jenjang & akreditasi",
+          "Jenjang sekolah formal, kurikulum, dan akreditasi belum kami terima datanya. Silakan bertanya kepada narahubung pondok putra atau putri.",
+        ),
       ],
     },
     diniyah: {
       title: "Madrasah Diniyah",
-      summary: "Jenjang ula, wustha, dan ulya yang menjadi tulang punggung pendidikan keagamaan di Asasunnajaah.",
+      summary: "Madrasah Diniyah berlangsung setiap malam setelah sholat 'Isya.",
       image: "halaqah",
       blocks: [
         {
           type: "table",
-          heading: "Jenjang dan kitab pokok",
-          columns: ["Jenjang", "Lama", "Kitab pokok"],
+          heading: "Kegiatan diniyah dalam jadwal harian",
+          columns: ["Waktu", "Kegiatan", "Keterangan"],
           rows: [
-            ["Ula (dasar)", "3 tahun", "Mabadi Fiqih, Aqidatul Awam, Jurumiyah, Tuhfatul Athfal"],
-            ["Wustha (menengah)", "3 tahun", "Fathul Qarib, Imrithi, Alfiyah Ibnu Malik, Ta'limul Muta'allim"],
-            ["Ulya (atas)", "2 tahun", "Fathul Mu'in, Jauharul Maknun, Bulughul Maram, Tafsir Jalalain"],
-          ],
-          note: "Santri baru mengikuti tes penempatan, sehingga jenjang diniyah tidak selalu sama dengan kelas formal.",
-        },
-        {
-          type: "list",
-          heading: "Ketentuan kenaikan jenjang",
-          style: "check",
-          items: [
-            "Kehadiran minimal 85% dalam satu tahun pelajaran.",
-            "Lulus ujian tulis dan ujian lisan membaca kitab.",
-            "Menyetorkan hafalan nadham sesuai jenjang (Imrithi, Alfiyah).",
-            "Tidak sedang menjalani sanksi berat kesantrian.",
+            [
+              "14.00–15.00",
+              "Ngaji kitab bandungan",
+              "Untuk kelas aula (putra) dan kelas aulia (putri)",
+            ],
+            ["16.30–17.00", "Setoran kitab Alfiyyah", "Untuk kelas 3–6 Diniyah (putri)"],
+            ["20.30–22.00", "Madrasah Diniyah", "Setiap malam"],
+            ["22.30–23.45", "Musyawarah & takror", "Putra"],
           ],
         },
+        belumTersedia(
+          "Jenjang & kitab pokok",
+          "Rincian jenjang (ula, wustha, ulya) serta daftar kitab pokok belum kami terima. Silakan menghubungi narahubung pondok.",
+        ),
       ],
     },
     tahfizh: {
-      title: "Tahfizh Al-Qur'an",
-      summary: "Program hafalan dengan target terukur, murajaah terjadwal, dan ijazah sanad bagi yang khatam 30 juz.",
+      title: "Al-Qur'an & Tahfizh",
+      summary: "Kegiatan tadarrus, sorogan, dan setoran hafalan sesuai jadwal harian pondok.",
       image: "tahfizh",
       blocks: [
         {
-          type: "features",
-          columns: 3,
-          items: [
-            { icon: BookOpen, title: "Tahfizh Reguler", text: "Untuk santri MTs/MA. Target 10 juz dalam 3 tahun di sela sekolah formal.", meta: "Setoran 1 halaman/hari" },
-            { icon: Trophy, title: "Takhassus 30 Juz", text: "Program khusus 3 tahun tanpa sekolah formal, fokus hafalan dan qira'ah.", meta: "Kuota 40 santri" },
-            { icon: Mic2, title: "Tahsin & Tilawah", text: "Perbaikan makharijul huruf dan tajwid sebelum mulai menghafal.", meta: "Semua santri baru" },
-          ],
-        },
-        {
           type: "schedule",
-          heading: "Jadwal halaqah harian",
+          heading: "Kegiatan Al-Qur'an harian",
           items: [
-            { time: "03.30–04.30", title: "Ziyadah", text: "Menambah hafalan baru sebelum Subuh." },
-            { time: "05.15–06.15", title: "Setoran ke musyrif", text: "Satu musyrif membimbing 12 santri." },
-            { time: "16.00–17.00", title: "Murajaah", text: "Mengulang hafalan lama secara berpasangan." },
-            { time: "20.30–21.15", title: "Takrir", text: "Persiapan hafalan esok hari." },
+            {
+              time: "05.30–06.15",
+              title: "Tadarrus Al-Qur'an",
+              text: "Bersama ngaji bandungan kitab kuning.",
+            },
+            { time: "16.30–17.00", title: "Pengajian bandungan Al-Qur'an (putra)" },
+            { time: "16.30–17.00", title: "Setoran kitab Alfiyyah (putri kelas 3–6 Diniyah)" },
+            { time: "19.00–19.30", title: "Ngaji sorogan Al-Qur'an & kitab kuning" },
+            { time: "22.00–22.30", title: "Setoran nadzom Alfiyyah Ibnu Malik (putra)" },
           ],
         },
-        {
-          type: "facts",
-          items: [
-            { value: "31", label: "Hafizh 30 juz angkatan 2026" },
-            { value: "214", label: "Hafizh sejak 2010" },
-            { value: "1:12", label: "Rasio musyrif dan santri" },
-          ],
-        },
+        belumTersedia(
+          "Program tahfizh",
+          "Target hafalan, jumlah juz, dan syarat mengikuti program tahfizh belum kami terima. Silakan menghubungi narahubung pondok.",
+        ),
       ],
     },
     "kitab-kuning": {
       title: "Pengajian Kitab Kuning",
-      summary: "Tradisi sorogan dan bandongan yang kami jaga sejak hari pertama pondok berdiri.",
+      summary: "Pengajian kitab kuning dengan metode bandungan dan sorogan setiap hari.",
       image: "kitab",
       blocks: [
         {
-          type: "prose",
-          heading: "Dua metode, satu tujuan",
-          paragraphs: [
-            "Sorogan: santri membaca kitab di hadapan ustadz satu per satu, lalu dikoreksi harakat, makna, dan susunan kalimatnya. Metode ini melatih ketelitian membaca teks Arab tanpa harakat.",
-            "Bandongan: kiai membaca dan memaknai kitab dengan makna gandul berbahasa Jawa, sementara santri menyimak dan menulis makna di kitab masing-masing.",
+          type: "table",
+          heading: "Waktu pengajian kitab",
+          columns: ["Waktu", "Kegiatan"],
+          rows: [
+            ["05.30–06.15", "Ngaji bandungan kitab kuning (setelah tadarrus)"],
+            ["14.00–15.00", "Ngaji kitab bandungan untuk kelas aula/aulia"],
+            ["16.30–17.00", "Pengajian bandungan Al-Qur'an (putra)"],
+            ["19.00–19.30", "Ngaji sorogan kitab kuning & Al-Qur'an"],
+            ["22.00–22.30", "Setoran nadzom Alfiyyah Ibnu Malik (putra)"],
+            ["22.30–23.45", "Musyawarah & takror (putra)"],
           ],
-          image: "kitab",
         },
         {
-          type: "table",
-          heading: "Pengajian kitab ba'da Maghrib & Subuh",
-          columns: ["Kitab", "Bidang", "Pengampu", "Waktu"],
-          rows: [
-            ["Tafsir Jalalain", "Tafsir", "KH. Abdurrahman Hakim", "Ba'da Subuh"],
-            ["Riyadhus Shalihin", "Hadits", "KH. Muhammad Ilyas, Lc., M.A.", "Ba'da Maghrib"],
-            ["Ihya' Ulumiddin (Rubu' 'Ibadat)", "Tasawuf", "KH. Abdurrahman Hakim", "Kamis malam"],
-            ["Fathul Mu'in", "Fiqih", "Ust. Muhammad Syafi'i, Lc.", "Ba'da Isya"],
-            ["Ta'limul Muta'allim", "Akhlak", "Ust. Hasan Basri, S.H.", "Ahad pagi"],
+          type: "prose",
+          heading: "Bandungan dan sorogan",
+          paragraphs: [
+            "Bandungan: kitab dibacakan dan dimaknai bersama-sama, santri menyimak dan mencatat makna pada kitabnya masing-masing.",
+            "Sorogan: santri membaca kitab di hadapan ustadz satu per satu untuk dikoreksi bacaannya.",
           ],
         },
       ],
     },
     kurikulum: {
       title: "Kurikulum",
-      summary: "Perpaduan Kurikulum Merdeka Kementerian Agama dan kurikulum khas pesantren dalam satu jadwal 24 jam.",
+      summary:
+        "Perpaduan sekolah formal, madrasah diniyah, dan pengajian kitab dalam satu jadwal harian.",
       image: "kelas",
       blocks: [
         {
           type: "table",
-          heading: "Komposisi jam belajar per pekan",
-          columns: ["Komponen", "MTs", "MA"],
+          heading: "Alur kegiatan belajar harian",
+          columns: ["Waktu", "Kegiatan"],
           rows: [
-            ["Mata pelajaran umum (Kemenag)", "32 jam", "34 jam"],
-            ["Pendidikan agama formal", "10 jam", "10 jam"],
-            ["Madrasah Diniyah", "12 jam", "12 jam"],
-            ["Pengajian kitab kuning", "10 jam", "12 jam"],
-            ["Tahfizh & tahsin", "8 jam", "6 jam"],
-            ["Bahasa Arab & Inggris (muhadatsah)", "4 jam", "4 jam"],
+            ["05.30–06.15", "Tadarrus Al-Qur'an & ngaji bandungan kitab kuning"],
+            ["06.30–12.00", "Sekolah formal (bagi yang sekolah)"],
+            ["14.00–15.00", "Ngaji kitab bandungan"],
+            ["16.30–17.00", "Pengajian bandungan Al-Qur'an / setoran kitab"],
+            ["19.00–19.30", "Ngaji sorogan kitab kuning & Al-Qur'an"],
+            ["20.30–22.00", "Madrasah Diniyah"],
+            ["22.30–23.45", "Musyawarah & takror"],
           ],
-          totalRow: ["Total", "76 jam", "78 jam"],
-        },
-        {
-          type: "list",
-          heading: "Kompetensi lulusan",
-          style: "check",
-          items: [
-            "Membaca dan memahami kitab fiqih dasar tanpa harakat.",
-            "Hafal minimal 3 juz Al-Qur'an (MTs) dan 5 juz (MA) dengan tajwid yang benar.",
-            "Mampu memimpin shalat, tahlil, dan khutbah Jumat.",
-            "Berkomunikasi sederhana dalam bahasa Arab dan Inggris.",
-            "Lulus Ujian Madrasah dan siap melanjutkan ke perguruan tinggi.",
-          ],
+          note: "Santri yang tidak bersekolah formal mengikuti kegiatan pondok pada jam tersebut.",
         },
       ],
     },
@@ -354,137 +252,155 @@ export const PAGES: PageMap = {
 
   kesantrian: {
     "kegiatan-harian": {
-      title: "Kegiatan Harian Santri",
-      summary: "Satu hari di Asasunnajaah dimulai sebelum Subuh dan ditutup dengan istirahat pukul 22.00.",
+      title: "Kegiatan Santri",
+      summary:
+        "Jadwal harian santri putra dan putri Pondok Pesantren Asaasunnajaah, dari Subuh hingga istirahat malam.",
       image: "tahfizh",
       blocks: [
         {
           type: "schedule",
-          heading: "Jadwal harian (Sabtu–Kamis)",
-          intro: "Hari Jumat digunakan untuk kerja bakti, olahraga, dan kegiatan ekstrakurikuler.",
+          heading: "Jadwal harian santri putra",
           items: [
-            { time: "03.30", title: "Bangun, shalat tahajud & ziyadah" },
-            { time: "04.30", title: "Shalat Subuh berjamaah & wirid" },
-            { time: "05.15", title: "Pengajian kitab ba'da Subuh / setoran tahfizh" },
-            { time: "06.15", title: "Mandi, sarapan, persiapan sekolah" },
-            { time: "07.00", title: "Madrasah formal (MTs/MA)" },
-            { time: "12.00", title: "Shalat Dzuhur berjamaah & makan siang" },
-            { time: "13.30", title: "Istirahat siang (qailulah)" },
-            { time: "15.00", title: "Shalat Ashar & Madrasah Diniyah" },
-            { time: "17.00", title: "Murajaah, olahraga ringan, mandi" },
-            { time: "17.45", title: "Shalat Maghrib & pengajian kitab" },
-            { time: "19.15", title: "Shalat Isya & makan malam" },
-            { time: "20.00", title: "Belajar malam terbimbing (musyawarah)" },
-            { time: "22.00", title: "Istirahat malam" },
+            { time: "04.00–05.30", title: "Sholat Shubuh berjamaah" },
+            { time: "05.30–06.15", title: "Tadarrus Al-Qur'an dan Ngaji Bandungan Kitab Kuning" },
+            { time: "06.15–06.30", title: "Sholat Dhuha berjamaah" },
+            { time: "06.30–12.00", title: "Sekolah formal (bagi yang sekolah)" },
+            { time: "12.00–13.00", title: "Sholat Dzuhur berjamaah" },
+            { time: "14.00–15.00", title: "Ngaji kitab bandungan (untuk kelas aula)" },
+            { time: "15.00–16.30", title: "Sholat 'Ashar berjamaah" },
+            { time: "16.30–17.00", title: "Pengajian bandungan Al-Qur'an" },
+            { time: "18.00–18.40", title: "Sholat Maghrib berjamaah" },
+            { time: "18.40–19.00", title: "Pembacaan Ratibul Haddad" },
+            { time: "19.00–19.30", title: "Ngaji sorogan kitab kuning & Al-Qur'an" },
+            { time: "19.30–20.20", title: "Sholat 'Isya berjamaah" },
+            { time: "20.30–22.00", title: "Madrasah Diniyah" },
+            { time: "22.00–22.30", title: "Setoran nadzom Alfiyyah Ibnu Malik" },
+            { time: "22.30–23.45", title: "Musyawarah & takror" },
+            { time: "23.45–04.00", title: "Istirahat" },
+          ],
+        },
+        {
+          type: "schedule",
+          heading: "Jadwal harian santri putri",
+          items: [
+            { time: "04.00–05.30", title: "Sholat Shubuh berjamaah" },
+            { time: "05.30–06.15", title: "Tadarrus Al-Qur'an dan Ngaji Bandungan Kitab Kuning" },
+            { time: "06.15–06.30", title: "Sholat Dhuha berjamaah" },
+            { time: "06.30–12.00", title: "Sekolah formal (bagi yang sekolah)" },
+            { time: "12.00–13.00", title: "Sholat Dzuhur berjamaah" },
+            { time: "14.00–15.00", title: "Ngaji kitab bandungan (untuk kelas aulia)" },
+            { time: "15.00–16.30", title: "Sholat 'Ashar berjamaah" },
+            { time: "16.30–17.00", title: "Setoran kitab Alfiyyah (untuk kelas 3–6 Diniyah)" },
+            { time: "18.00–18.40", title: "Sholat Maghrib berjamaah" },
+            { time: "18.40–19.00", title: "Pembacaan Ratibul Haddad" },
+            { time: "19.00–19.30", title: "Ngaji sorogan kitab kuning & Al-Qur'an" },
+            { time: "19.30–20.20", title: "Sholat 'Isya berjamaah" },
+            { time: "20.30–22.00", title: "Madrasah Diniyah" },
+            { time: "22.00–22.30", title: "Musyawarah & takror" },
+            { time: "23.45–04.00", title: "Istirahat" },
+          ],
+          intro:
+            "Jadwal sesuai brosur pondok. Waktu di luar kegiatan belajar digunakan untuk istirahat dan keperluan pribadi.",
+        },
+      ],
+    },
+    "kegiatan-lainnya": {
+      title: "Kegiatan Lainnya",
+      summary: "Kegiatan mingguan, bulanan, dan tahunan Pondok Pesantren Asaasunnajaah Kesugihan.",
+      image: "halaqah",
+      blocks: [
+        {
+          type: "list",
+          heading: "Kegiatan mingguan",
+          style: "numbered",
+          items: [
+            "Pembacaan maulid Al Barzanji setiap malam Jum'at.",
+            "Ziaroh qubur setiap Jum'at pagi bersama pengasuh.",
+            "Ziaroh qubur serta pembacaan surat Yasin setiap ba'da sholat Jum'at (putra).",
+            "Ziaroh qubur serta pembacaan surat Yasin setiap Jum'at ba'da 'Ashar (putri).",
+            "Ro'an bersama setiap Ahad pagi.",
+          ],
+        },
+        {
+          type: "list",
+          heading: "Kegiatan bulanan",
+          style: "numbered",
+          items: [
+            "Khitobah santri setiap malam Ahad Kliwon.",
+            "Mau'idzotul Hasanah setiap malam Selasa Kliwon bersama masyayikh.",
+            "Pengajian rutin kitab Tanbihul Ghafilin para alumni setiap Ahad malam.",
+            "Pengajian rutin ibu-ibu muslimat setiap ba'da sholat Dzuhur Ahad Manis.",
+            "Pembacaan sholawat Nariyah 4444 setiap malam Jum'at Manis.",
+          ],
+        },
+        {
+          type: "list",
+          heading: "Kegiatan tahunan",
+          style: "numbered",
+          items: [
+            "Harlah Ponpes Asaasunnajaah dan Haul Masyayikh.",
+            "Halal bihalal alumni dan wali santri.",
+            "Ziaroh Walisongo & Auliya.",
+            "Ulangan Nishfu Sanah.",
+            "Ulangan Akhirussanah.",
+            "Haflah Akhirussanah.",
           ],
         },
       ],
     },
     ekstrakurikuler: {
       title: "Ekstrakurikuler",
-      summary: "Wadah pengembangan bakat santri setiap Jumat dan Ahad, dibina oleh pelatih bersertifikat.",
+      summary: "Kegiatan pengembangan bakat dan keterampilan santri di luar jam madrasah.",
       image: "ekskul",
       blocks: [
         {
-          type: "features",
-          columns: 3,
+          type: "list",
+          heading: "Kegiatan ekstrakurikuler",
+          style: "check",
           items: [
-            { icon: Tent, title: "Pramuka", text: "Gugus depan pangkalan pesantren; wajib bagi kelas VII dan X.", meta: "Jumat pagi" },
-            { icon: Music, title: "Hadrah & Banjari", text: "Tampil rutin di haflah dan undangan masyarakat sekitar.", meta: "Kamis malam" },
-            { icon: Mic2, title: "Khitobah & MTQ", text: "Latihan pidato tiga bahasa, tilawah, dan syarhil Qur'an.", meta: "Ahad pagi" },
-            { icon: Swords, title: "Pencak Silat", text: "Perguruan Pagar Nusa, latihan fisik dan bela diri.", meta: "Jumat sore" },
-            { icon: Volleyball, title: "Futsal & Voli", text: "Liga antarkamar dan turnamen antarpesantren se-Cilacap.", meta: "Jumat sore" },
-            { icon: Palette, title: "Kaligrafi", text: "Khat naskhi, tsulutsi, dan dekorasi untuk lomba MTQ.", meta: "Ahad siang" },
-            { icon: PenLine, title: "Jurnalistik", text: "Mengelola majalah santri dan konten media sosial pesantren.", meta: "Ahad siang" },
-            { icon: Cpu, title: "Robotik & Coding", text: "Pengenalan Arduino dan pemrograman dasar untuk santri MA.", meta: "Ahad sore" },
-            { icon: Shirt, title: "Tata Busana", text: "Keterampilan menjahit untuk santri putri.", meta: "Ahad pagi" },
+            "Maulid Al Barzanji",
+            "Hadroh/Maulid Simtudduror",
+            "Khitobah santri",
+            "Pembacaan Ratibul Haddad",
+            "Musyawarah",
+            "Muhafadzoh",
+            "Jurnalistik",
+            "Futsal",
           ],
         },
       ],
     },
     osip: {
-      title: "Organisasi Santri (OSIP)",
-      summary: "Organisasi Santri Intra Pesantren melatih santri senior memimpin, mengatur, dan melayani teman-temannya.",
+      title: "Organisasi Santri",
+      summary: "Organisasi santri Pondok Pesantren Asaasunnajaah Kesugihan.",
       image: "asrama",
       blocks: [
-        {
-          type: "prose",
-          paragraphs: [
-            "OSIP dipilih setiap tahun melalui musyawarah santri kelas XI dan disahkan oleh pengasuh. Pengurus bertanggung jawab atas ketertiban harian, kebersihan, kegiatan ibadah, dan penyelenggaraan acara besar pesantren.",
-            "Masa bakti pengurus 2026/2027 dimulai 15 Juli 2026, diketuai oleh M. Hilmi Ramadhan (putra) dan Nadia Salsabila (putri).",
-          ],
-        },
-        {
-          type: "features",
-          heading: "Departemen",
-          columns: 3,
-          items: [
-            { icon: Landmark, title: "Ubudiyah", text: "Jadwal imam, adzan, wirid, dan kegiatan ibadah berjamaah." },
-            { icon: BookOpen, title: "Pendidikan", text: "Belajar malam, musyawarah kitab, dan perpustakaan kamar." },
-            { icon: Trophy, title: "Keamanan", text: "Absensi, perizinan pulang, dan penegakan tata tertib." },
-            { icon: HeartPulse, title: "Kesehatan & Kebersihan", text: "Piket kamar, jumat bersih, dan pendampingan santri sakit." },
-            { icon: Mic2, title: "Bahasa", text: "Pekan bahasa Arab–Inggris dan pemberian kosakata harian." },
-            { icon: Palette, title: "Minat & Bakat", text: "Koordinasi ekstrakurikuler dan acara haflah." },
-          ],
-        },
+        belumTersedia(
+          "Susunan organisasi santri",
+          "Nama pengurus, departemen, dan masa bakti organisasi santri belum kami terima. Halaman ini akan diisi setelah data resmi tersedia.",
+        ),
       ],
     },
     prestasi: {
       title: "Prestasi Santri",
-      summary: "Capaian santri dalam dua tahun terakhir di tingkat kabupaten hingga nasional.",
+      summary: "Capaian santri Pondok Pesantren Asaasunnajaah Kesugihan.",
       image: "prestasi",
       blocks: [
-        {
-          type: "table",
-          heading: "Prestasi 2025–2026",
-          columns: ["Tahun", "Kejuaraan", "Tingkat", "Nama", "Hasil"],
-          rows: [
-            ["2026", "MTQ cabang Tartil Putra", "Provinsi Jatim", "Ahmad Faiz", "Juara 1"],
-            ["2026", "Musabaqah Qira'atil Kutub (Fathul Qarib)", "Nasional", "Lailatul Fitriyah", "Juara 2"],
-            ["2026", "Olimpiade Sains Nasional Biologi", "Kab. Cilacap", "Zahra Aulia", "Medali Emas"],
-            ["2026", "Pencak Silat Pagar Nusa Cup", "Jawa Timur", "Rizal Maulana", "Juara 1 Kelas C"],
-            ["2025", "Lomba Pidato Bahasa Arab", "Nasional", "Syifa Nurhaliza", "Juara 3"],
-            ["2025", "Festival Banjari", "Eks-Karesidenan Kedu", "Tim Hadrah Asasunnajaah", "Juara 1"],
-            ["2025", "Kompetisi Robotik Madrasah", "Provinsi Jatim", "Tim Robotik MA", "Harapan 1"],
-          ],
-        },
-        { type: "articles", heading: "Kabar prestasi", items: NEWS.filter((n) => n.category === "Prestasi") },
+        belumTersedia(
+          "Daftar prestasi",
+          "Daftar kejuaraan dan nama peraih prestasi belum kami terima, sehingga belum kami tampilkan. Silakan menghubungi narahubung pondok.",
+        ),
       ],
     },
     "tata-tertib": {
       title: "Tata Tertib",
-      summary: "Aturan pokok yang berlaku bagi seluruh santri, disusun untuk menjaga adab dan keamanan bersama.",
+      summary: "Aturan yang berlaku bagi santri Pondok Pesantren Asaasunnajaah Kesugihan.",
       image: "halaqah",
       blocks: [
-        {
-          type: "list",
-          heading: "Kewajiban santri",
-          style: "numbered",
-          items: [
-            "Mengikuti shalat lima waktu berjamaah di masjid atau mushala asrama.",
-            "Mengikuti seluruh kegiatan madrasah formal, diniyah, dan pengajian.",
-            "Berpakaian sopan sesuai ketentuan: putra bersarung dan berpeci, putri berjilbab syar'i.",
-            "Menjaga kebersihan diri, kamar, dan lingkungan pesantren.",
-            "Meminta izin tertulis kepada keamanan setiap kali keluar area pondok.",
-          ],
-        },
-        {
-          type: "list",
-          heading: "Larangan",
-          style: "numbered",
-          items: [
-            "Membawa dan menggunakan telepon genggam atau perangkat elektronik pribadi.",
-            "Merokok, membawa senjata tajam, atau barang terlarang lainnya.",
-            "Keluar pondok tanpa izin atau menginap di luar tanpa sepengetahuan wali dan pengurus.",
-            "Berinteraksi dengan lawan jenis bukan mahram tanpa keperluan yang dibenarkan.",
-            "Melakukan perundungan dalam bentuk apa pun.",
-          ],
-        },
-        {
-          type: "callout",
-          title: "Komunikasi dengan wali santri",
-          text: "Santri dapat menelepon wali melalui wartel pesantren setiap Ahad. Wali dapat menghubungi kantor kesantrian pada jam kerja untuk keperluan mendesak.",
-        },
+        belumTersedia(
+          "Naskah tata tertib",
+          "Naskah tata tertib santri belum kami terima untuk dipublikasikan. Tata tertib disampaikan kepada wali santri saat pendaftaran dan sowan ke masyayikh.",
+        ),
       ],
     },
   },
@@ -492,7 +408,7 @@ export const PAGES: PageMap = {
   informasi: {
     berita: {
       title: "Berita Pesantren",
-      summary: "Kabar terbaru kegiatan, prestasi, dan perkembangan di lingkungan Pondok Pesantren Asasunnajaah.",
+      summary: "Kabar kegiatan dan perkembangan Pondok Pesantren Asaasunnajaah Kesugihan.",
       image: "wisuda",
       blocks: [{ type: "articles", items: NEWS }],
     },
@@ -510,7 +426,7 @@ export const PAGES: PageMap = {
     },
     kajian: {
       title: "Kajian & Artikel Islam",
-      summary: "Tulisan para asatidz seputar fiqih, akhlak, Al-Qur'an, dan pendidikan pesantren.",
+      summary: "Tulisan keislaman dari lingkungan Pondok Pesantren Asaasunnajaah.",
       image: "kitab",
       blocks: [{ type: "articles", items: KAJIAN, showAuthor: true }],
     },
@@ -519,88 +435,128 @@ export const PAGES: PageMap = {
   psb: {
     "alur-syarat": {
       title: "Alur & Syarat Pendaftaran",
-      summary: `Penerimaan Santri Baru tahun ajaran ${PSB_INFO.year}. Kuota ${PSB_INFO.quota}.`,
+      summary:
+        "Tahapan dan berkas yang diperlukan untuk mendaftar sebagai santri Pondok Pesantren Asaasunnajaah Kesugihan.",
       image: "wisuda",
       blocks: [
         {
           type: "table",
-          heading: "Jadwal gelombang",
-          columns: ["Gelombang", "Masa pendaftaran", "Tes seleksi"],
-          rows: PSB_INFO.waves.map((w) => [w.name, w.period, w.test]),
+          heading: "Jadwal pendaftaran",
+          columns: ["Jalur", "Dibuka mulai", "Cara daftar"],
+          rows: [
+            ["Pendaftaran online", "5 April 2024", "Mengisi formulir melalui tautan resmi"],
+            ["Pendaftaran offline", "24 April 2024", "Datang langsung ke pondok"],
+          ],
         },
         {
           type: "steps",
           heading: "Alur pendaftaran",
           items: [
-            { title: "Isi formulir online", text: "Lengkapi data calon santri dan wali melalui halaman Formulir Online." },
-            { title: "Bayar biaya pendaftaran", text: "Rp 250.000 via transfer ke rekening BSI yayasan; simpan bukti transfer." },
-            { title: "Unggah berkas", text: "Kirim dokumen persyaratan ke WhatsApp panitia paling lambat 7 hari setelah daftar." },
-            { title: "Ikuti tes seleksi", text: "Tes baca Al-Qur'an, wawancara santri dan wali, serta tes potensi akademik." },
-            { title: "Pengumuman & daftar ulang", text: "Hasil diumumkan 7 hari setelah tes; daftar ulang dalam 14 hari." },
+            {
+              title: "Daftar online atau offline",
+              text: "Pendaftaran online dibuka 5 April 2024 melalui tautan formulir, pendaftaran offline dibuka 24 April 2024 di pondok.",
+            },
+            {
+              title: "Diantar walisantri",
+              text: "Calon santri datang bersama walisantri dan mengisi formulir pendaftaran.",
+            },
+            {
+              title: "Menyerahkan berkas",
+              text: "Fotokopi KK 2 lembar dan fotokopi ijazah terakhir pendidikan.",
+            },
+            {
+              title: "Sowan ke Masyayikh Ma'had",
+              text: "Silaturahmi dan pengarahan dari masyayikh sebelum santri resmi mondok.",
+            },
+            {
+              title: "Melengkapi administrasi",
+              text: "Menyelesaikan seluruh administrasi pendaftaran dan pembayaran awal.",
+            },
           ],
         },
         {
           type: "list",
-          heading: "Berkas persyaratan",
+          heading: "Syarat-syarat pendaftaran",
           style: "check",
           items: [
-            "Fotokopi akta kelahiran dan Kartu Keluarga (2 lembar).",
-            "Fotokopi ijazah/SKL atau rapor semester terakhir yang dilegalisir.",
-            "Pas foto berwarna 3x4 latar biru (4 lembar).",
-            "Surat keterangan sehat dari dokter atau puskesmas.",
-            "Fotokopi KTP kedua orang tua/wali.",
-            "Fotokopi KIP/PKH bagi yang mengajukan keringanan biaya.",
+            "Diantar oleh walisantri.",
+            "Mengisi formulir pendaftaran.",
+            "Menyerahkan fotokopi KK 2 lembar.",
+            "Menyerahkan fotokopi ijazah terakhir pendidikan.",
+            "Sowan ke Masyayikh Ma'had.",
+            "Melengkapi administrasi.",
           ],
+        },
+        {
+          type: "callout",
+          title: "Formulir & lokasi",
+          text: `Formulir pendaftaran: ${PSB_INFO.formUrl} · Lokasi: ${PSB_INFO.location}.`,
         },
       ],
     },
     biaya: {
-      title: "Rincian Biaya",
-      summary: `Biaya pendidikan tahun ajaran ${PSB_INFO.year}. Tersedia beasiswa yatim, dhuafa, dan prestasi.`,
+      title: "Rincian Biaya Pendaftaran",
+      summary:
+        "Rincian biaya pendaftaran santri putra dan putri Pondok Pesantren Asaasunnajaah Kesugihan.",
       image: "asrama",
       blocks: [
         {
           type: "table",
-          heading: "Biaya masuk (sekali bayar)",
-          columns: ["Komponen", "MTs", "MA"],
+          heading: "Komponen biaya",
+          columns: ["Komponen", "Santri putra", "Santri putri"],
           rows: [
-            ["Pendaftaran & tes seleksi", "Rp 250.000", "Rp 250.000"],
-            ["Uang gedung & pengembangan", "Rp 3.500.000", "Rp 4.000.000"],
-            ["Perlengkapan asrama (kasur, lemari)", "Rp 1.250.000", "Rp 1.250.000"],
-            ["Seragam (5 stel) & atribut", "Rp 1.400.000", "Rp 1.550.000"],
-            ["Kitab & buku paket tahun pertama", "Rp 850.000", "Rp 950.000"],
+            ["Pendaftaran", "Rp 50.000", "Rp 50.000"],
+            ["KTS", "Rp 15.000", "Rp 15.000"],
+            ["Pajak makan", "Rp 240.000 per bulan/2x", "Rp 240.000 per bulan/2x"],
+            ["Jariyah (pilih salah satu, selama mondok)", BIAYA.jariyah, BIAYA.jariyah],
+            ["Syahriyah", "Rp 50.000/bulan", "Rp 50.000/bulan"],
+            ["Madin", "Rp 10.000/bulan", "Rp 10.000/bulan"],
+            ["Kelengkapan pondok", BIAYA.kelengkapan.putra, BIAYA.kelengkapan.putri],
           ],
-          totalRow: ["Total biaya masuk", "Rp 7.250.000", "Rp 8.000.000"],
         },
         {
           type: "table",
-          heading: "Biaya bulanan (syahriah)",
-          columns: ["Komponen", "MTs", "MA"],
-          rows: [
-            ["SPP madrasah formal", "Rp 200.000", "Rp 250.000"],
-            ["Madrasah diniyah & pengajian", "Rp 75.000", "Rp 75.000"],
-            ["Makan 3x sehari", "Rp 600.000", "Rp 600.000"],
-            ["Asrama, listrik & air", "Rp 125.000", "Rp 125.000"],
-            ["Laundry", "Rp 75.000", "Rp 75.000"],
-          ],
-          totalRow: ["Total per bulan", "Rp 1.075.000", "Rp 1.125.000"],
-          note: "Biaya uang gedung dapat diangsur hingga 3 kali. Program Takhassus Tahfizh mengikuti biaya MA tanpa SPP formal.",
+          heading: "Jumlah biaya awal menurut pilihan jariyah",
+          columns: ["Jariyah", "Santri putra", "Santri putri"],
+          rows: BIAYA.total.map((t) => [t.jariyah, t.putra, t.putri]),
+          note: "Jumlah di atas sudah termasuk syahriyah dan madin bulan pertama.",
         },
         {
-          type: "features",
-          heading: "Beasiswa",
-          columns: 3,
+          type: "list",
+          heading: "Ketentuan administrasi",
+          style: "numbered",
           items: [
-            { icon: HeartPulse, title: "Yatim & dhuafa", text: "Gratis biaya bulanan, didukung BAZNAS Kab. Cilacap.", meta: "20 kuota" },
-            { icon: Trophy, title: "Prestasi", text: "Potongan 50% uang gedung untuk juara kabupaten ke atas.", meta: "15 kuota" },
-            { icon: BookOpen, title: "Hafizh", text: "Hafal minimal 5 juz saat mendaftar: gratis uang gedung.", meta: "10 kuota" },
+            "Untuk pembiayaan makan, syahriyah, dan madin dibayar secara rutin setiap bulan.",
+            "Untuk pembiayaan pendaftaran, jariyah, kelengkapan pondok & KTS dibayar satu kali selama menjadi santri.",
+            "Untuk pembiayaan kelengkapan pondok putri meliputi: lemari, kerudung almamater, pin, buku izin, raport, buku sorogan, buku setoran.",
+            "Untuk pembiayaan kelengkapan pondok putra meliputi: buku izin, raport, buku setoran, buku sorogan.",
           ],
+        },
+        {
+          type: "table",
+          heading: "Rekening pembayaran",
+          columns: ["Jalur", "Bank", "Nomor rekening", "Atas nama"],
+          rows: [
+            [
+              "Santri putra",
+              BIAYA.rekening.putra.bank,
+              BIAYA.rekening.putra.nomor,
+              BIAYA.rekening.putra.nama,
+            ],
+            [
+              "Santri putri",
+              BIAYA.rekening.putri.bank,
+              BIAYA.rekening.putri.nomor,
+              BIAYA.rekening.putri.nama,
+            ],
+          ],
+          note: `Sertakan bukti transfer, lalu kirim ke WhatsApp — putra: ${BIAYA.konfirmasi.putra.join(" / ")}; putri: ${BIAYA.konfirmasi.putri.join(" / ")}.`,
         },
       ],
     },
     formulir: {
       title: "Formulir Pendaftaran Online",
-      summary: "Isi data calon santri di bawah ini. Panitia akan menghubungi wali melalui WhatsApp dalam 1×24 jam kerja.",
+      summary: `Isi data calon santri di bawah ini, atau gunakan formulir resmi di ${PSB_INFO.formUrl}.`,
       image: "halaqah",
       blocks: [{ type: "psb-form" }],
     },
@@ -610,4 +566,3 @@ export const PAGES: PageMap = {
 export function getPage(section: string, slug: string) {
   return PAGES[section]?.[slug] ?? null;
 }
-

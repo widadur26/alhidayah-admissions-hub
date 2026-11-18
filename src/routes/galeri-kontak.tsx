@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Clock, Mail, MapPin, Phone } from "lucide-react";
+import { Clock, Mail, MapPin, MessageCircle, Phone } from "lucide-react";
 
 import { IMAGES, type ImageKey } from "@/lib/images";
 import { getSiteContent } from "@/lib/content-store";
@@ -22,15 +22,15 @@ export const Route = createFileRoute("/galeri-kontak")({
 });
 
 const GALLERY: { image: ImageKey; caption: string }[] = [
-  { image: "wisuda", caption: "Wisuda Akbar ke-37" },
-  { image: "tahfizh", caption: "Halaqah tahfizh ba'da Subuh" },
-  { image: "kitab", caption: "Pengajian kitab bandongan" },
-  { image: "kelas", caption: "Kelas MA peminatan IPA" },
-  { image: "ekskul", caption: "Perkemahan Pramuka" },
-  { image: "halaqah", caption: "Halaqah santriwati" },
-  { image: "asrama", caption: "Asrama putra blok C" },
-  { image: "prestasi", caption: "Juara MTQ Provinsi" },
-  { image: "hero", caption: "Masjid Jami' Asasunnajaah" },
+  { image: "tahfizh", caption: "Tadarrus Al-Qur'an" },
+  { image: "kitab", caption: "Ngaji kitab kuning" },
+  { image: "kelas", caption: "Sekolah formal" },
+  { image: "ekskul", caption: "Ekstrakurikuler santri" },
+  { image: "asrama", caption: "Asrama santri" },
+  { image: "halaqah", caption: "Kegiatan santri putri" },
+  { image: "wisuda", caption: "Haflah Akhirussanah" },
+  { image: "prestasi", caption: "Kegiatan santri" },
+  { image: "hero", caption: "Kompleks Pondok Pesantren Asaasunnajaah" },
 ];
 
 function GaleriKontak() {
@@ -72,6 +72,45 @@ function GaleriKontak() {
         </div>
       </section>
       <section className="bg-muted">
+        <div className="mx-auto max-w-7xl px-4 py-14 sm:px-6 lg:py-20">
+          <h2 className="text-3xl font-semibold text-foreground">Narahubung</h2>
+          <p className="mt-2 max-w-2xl text-muted-foreground">
+            Hubungi contact person sesuai jenjang santri. Semoga bermanfaat.
+          </p>
+          <div className="mt-8 grid gap-4 md:grid-cols-2">
+            {(
+              [
+                { key: "putra", title: "Contact person pondok putra", people: site.contactPersons.putra },
+                { key: "putri", title: "Contact person pondok putri", people: site.contactPersons.putri },
+              ] as const
+            ).map((group) => (
+              <div key={group.key} className="rounded-xl border border-border bg-card p-6">
+                <p className="eyebrow text-muted-foreground">{group.title}</p>
+                <ul className="mt-4 space-y-4">
+                  {group.people.map((p) => (
+                    <li key={p.name} className="flex flex-wrap items-center justify-between gap-3">
+                      <div>
+                        <p className="font-semibold text-foreground">{p.name}</p>
+                        <p className="text-sm text-muted-foreground">{p.phone}</p>
+                      </div>
+                      <a
+                        href={`https://wa.me/${p.whatsapp}`}
+                        target="_blank"
+                        rel="noreferrer"
+                        className="inline-flex items-center gap-2 rounded-full bg-primary px-4 py-2 text-sm font-semibold text-primary-foreground transition-colors hover:bg-primary/90"
+                      >
+                        <MessageCircle className="h-4 w-4" />
+                        WhatsApp
+                      </a>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+      <section className="bg-background">
         <div className="mx-auto grid max-w-7xl gap-10 px-4 py-14 sm:px-6 lg:grid-cols-2 lg:py-20">
           <div>
             <h2 className="text-3xl font-semibold text-foreground">Hubungi kami</h2>

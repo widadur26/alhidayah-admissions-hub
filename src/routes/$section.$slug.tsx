@@ -121,7 +121,7 @@ function ContentRoute() {
             <div className="rounded-xl bg-terracotta-deep p-6 text-accent-foreground">
               <p className="eyebrow text-accent-foreground">PSB {lists.psb.year}</p>
               <p className="mt-2 font-display text-xl font-semibold leading-snug">
-                Pendaftaran Gelombang I dibuka{lists.psb.waves[0]?.period ? ` · ${lists.psb.waves[0].period}` : ""}
+                Pendaftaran dibuka{lists.psb.waves[0]?.period ? ` · ${lists.psb.waves[0].period}` : ""}
               </p>
               <Link
                 to="/$section/$slug"

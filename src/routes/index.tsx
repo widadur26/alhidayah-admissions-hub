@@ -29,7 +29,7 @@ export const Route = createFileRoute("/")({
       {
         name: "description",
         content:
-          "Website resmi Pondok Pesantren Asasunnajaah (Asaasunnajaah) di Kesugihan, Cilacap. Info MTs/MA, tahfizh, diniyah, kitab kuning, dan pendaftaran santri baru.",
+          "Website resmi Pondok Pesantren Asasunnajaah (Asaasunnajaah) di Kesugihan, Cilacap. Info kegiatan santri, jadwal harian, fasilitas, dan pendaftaran santri baru.",
       },
       {
         property: "og:title",
@@ -61,23 +61,23 @@ export const Route = createFileRoute("/")({
 
 const SLIDES = [
   {
-    eyebrow: "Pondok Pesantren Asasunnajaah",
-    title: "Madrasah, Tahfizh, dan Kitab Kuning dalam Satu Hari",
-    text: "Pagi sekolah formal MTs/MA, sore masuk diniyah, malam pagelaran kitab ba'da Maghrib. Santri Asasunnajaah tidak perlu memilih antara ijazah dan ilmu agama.",
+    eyebrow: "Pondok Pesantren Asaasunnajaah",
+    title: "Sekolah Formal, Diniyah, dan Kitab Kuning dalam Satu Hari",
+    text: "Pagi hari sekolah formal bagi santri yang bersekolah, sore ngaji kitab bandungan, malam madrasah diniyah hingga musyawarah dan takror.",
     image: kelasImage,
-    alt: "Santri MTs/MA belajar di ruang kelas yang terang",
+    alt: "Santri belajar di ruang kelas",
   },
   {
-    eyebrow: "Tahfizh & Diniyah",
-    title: "Hafalan Bertahap dengan Musyrif Pembimbing",
-    text: "Setoran ziyadah sebelum Subuh, murajaah sore berpasangan, dan takrir malam. Satu musyrif membegusi 12 santri, sejak kelas VII hingga khatam 30 juz.",
+    eyebrow: "Al-Qur'an & Kitab Kuning",
+    title: "Tadarrus, Bandungan, dan Sorogan Setiap Hari",
+    text: "Tadarrus Al-Qur'an pukul 05.30–06.15, ngaji bandungan kitab kuning pada pagi dan sore, serta sorogan ba'da Maghrib pukul 19.00–19.30.",
     image: tahfizhImage,
-    alt: "Santri mengaji Al-Qur'an di masjid pada pagi hari",
+    alt: "Santri mengaji Al-Qur'an",
   },
   {
-    eyebrow: "PSB 2027/2028 Telah Dibuka",
+    eyebrow: "Pendaftaran Santri Baru",
     title: "Daftar Santri Baru dari Rumah",
-    text: `Gelombang I: 1 November 2026 – 31 Januari 2027. Isi formulir online, panitia menghubungi wali lewat WhatsApp dalam 1×24 jam kerja.`,
+    text: "Pendaftaran online dibuka mulai 5 April 2024 melalui tautan formulir resmi; pendaftaran offline dibuka 24 April 2024 di pondok.",
     image: wisudaImage,
     alt: "Wisuda akbar santri di aula pondok",
   },
@@ -92,12 +92,12 @@ const PROGRAM_HREFS = [
 ] as const;
 
 const GALLERY: { image: ImageKey; caption: string }[] = [
-  { image: "tahfizh", caption: "Halaqah ba'da Subuh" },
-  { image: "kitab", caption: "Bandongan kitab" },
-  { image: "kelas", caption: "Kelas MTs" },
-  { image: "ekskul", caption: "Ekstrakurikuler" },
-  { image: "asrama", caption: "Asrama putra" },
-  { image: "halaqah", caption: "Halaqah santriwati" },
+  { image: "tahfizh", caption: "Tadarrus Al-Qur'an" },
+  { image: "kitab", caption: "Ngaji kitab kuning" },
+  { image: "kelas", caption: "Sekolah formal" },
+  { image: "ekskul", caption: "Ekstrakurikuler santri" },
+  { image: "asrama", caption: "Asrama santri" },
+  { image: "halaqah", caption: "Kegiatan santri putri" },
 ];
 
 function Index() {
@@ -193,7 +193,7 @@ function Index() {
           <div className="mx-auto w-full max-w-7xl px-4 pb-20 pt-32 sm:px-6 lg:pt-36">
             <div className="max-w-3xl">
               <p className="animate-rise inline-flex items-center gap-2 rounded-full bg-gold/15 px-4 py-1.5 text-xs font-semibold uppercase tracking-[0.2em] text-gold ring-1 ring-gold/30">
-                PSB {psb.year} · Gelombang I dibuka
+                PSB {psb.year} · Pendaftaran dibuka
               </p>
               <div key={slide} className="animate-rise">
                 <p className="mt-6 text-sm font-medium uppercase tracking-[0.18em] text-gold">{current.eyebrow}</p>
@@ -265,6 +265,7 @@ function Index() {
               </div>
             </div>
 
+            {stats.length > 0 && (
             <dl className="animate-rise mt-12 grid max-w-3xl grid-cols-1 gap-3 sm:grid-cols-3" style={{ animationDelay: "480ms" }}>
               {stats.map(({ icon: Icon, value, label }) => (
                 <div key={label} className="flex items-center gap-3 rounded-2xl bg-nav px-4 py-3.5 ring-1 ring-nav-foreground/10 backdrop-blur-md">
@@ -279,6 +280,7 @@ function Index() {
                 </div>
               ))}
             </dl>
+            )}
           </div>
         </section>
 
@@ -287,7 +289,7 @@ function Index() {
           <SectionHeading
             eyebrow="Penerimaan Santri Baru"
             title={`PSB ${psb.year}`}
-            description="Dua gelombang pendaftaran dalam setahun. Wali santri dapat menghubungi panitia lebih dulu untuk bertanya sebelum mengisi formulir."
+            description="Pendaftaran dibuka melalui dua jalur: online lewat formulir resmi dan offline dengan datang langsung ke pondok. Wali santri dapat menghubungi panitia lebih dulu sebelum mengisi formulir."
             action={
               <Link
                 to="/$section/$slug"
@@ -303,10 +305,10 @@ function Index() {
             {psb.waves.map((w) => (
               <div key={w.name} className="rounded-xl border border-border bg-card p-6">
                 <p className="eyebrow">{w.name}</p>
-                <p className="mt-3 font-display text-lg font-semibold text-foreground">Pendaftaran {w.period}</p>
+                <p className="mt-3 font-display text-lg font-semibold text-foreground">{w.period}</p>
                 <dl className="mt-4 space-y-2 text-sm">
                   <div className="flex gap-2">
-                    <dt className="text-muted-foreground">Tes seleksi:</dt>
+                    <dt className="text-muted-foreground">Cara daftar:</dt>
                     <dd className="font-medium text-foreground">{w.test}</dd>
                   </div>
                 </dl>
@@ -345,7 +347,7 @@ function Index() {
             <SectionHeading
               eyebrow="Program"
               title="Pilihan program santri baru"
-              description="Empat jalur yang bisa dipilih saat mendaftar. Santri boleh mengikuti lebih dari satu program sesuai tes penempatan."
+              description="Kegiatan belajar santri di pondok: sekolah formal, madrasah diniyah, ngaji kitab kuning, dan tadarrus Al-Qur'an."
             />
             <div className="mt-10 grid gap-4 sm:grid-cols-2 xl:grid-cols-4">
               {programs.map(({ icon: Icon, title, href, text, meta }) => (
@@ -371,8 +373,10 @@ function Index() {
         </section>
 
         {/* Agenda & pengumuman */}
+        {(lists.agenda.length > 0 || lists.notices.length > 0) && (
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
           <div className="grid gap-12 lg:grid-cols-[1.2fr_1fr]">
+            {lists.agenda.length > 0 && (
             <div>
               <SectionHeading eyebrow="Kalender" title="Agenda terdekat" />
               <ul className="mt-8 divide-y divide-border rounded-xl border border-border bg-card px-5">
@@ -389,6 +393,8 @@ function Index() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
+            )}
+            {lists.notices.length > 0 && (
             <div>
               <SectionHeading eyebrow="Pengumuman" title="Info wali santri" />
               <ul className="mt-8 divide-y divide-border rounded-xl border border-border bg-card px-5">
@@ -405,10 +411,13 @@ function Index() {
                 <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
+            )}
           </div>
         </section>
+        )}
 
         {/* Berita terbaru */}
+        {news.length > 0 && (
         <section className="bg-muted">
           <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
             <SectionHeading
@@ -432,6 +441,7 @@ function Index() {
             </div>
           </section>
         </section>
+        )}
 
         {/* Galeri */}
         <section className="mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:py-20">
@@ -468,6 +478,7 @@ function Index() {
         </section>
 
         {/* Testimoni */}
+        {lists.testimonials.length > 0 && (
         <section className="mx-auto max-w-7xl px-4 pb-16 sm:px-6 lg:pb-20">
           <SectionHeading eyebrow="Wali santri & alumni" title="Kata mereka tentang Asasunnajaah" />
           <div className="mt-10 grid gap-4 md:grid-cols-2">
@@ -476,6 +487,7 @@ function Index() {
             ))}
           </div>
         </section>
+        )}
 
         {/* CTA akhir */}
         <section className="bg-deep text-deep-foreground">

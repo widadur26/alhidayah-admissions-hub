@@ -15,7 +15,7 @@ export const psbSchema = z.object({
   jenisKelamin: z.enum(["Putra", "Putri"], { errorMap: () => ({ message: "Pilih salah satu" }) }),
   tempatLahir: z.string().trim().min(2, "Wajib diisi").max(60),
   tanggalLahir: z.string().min(1, "Wajib diisi"),
-  program: z.enum(["MTs (kelas VII)", "MA (kelas X)", "Takhassus Tahfizh"], {
+  program: z.enum(["Sekolah formal", "Tanpa sekolah formal (fokus pondok)"], {
     errorMap: () => ({ message: "Pilih program" }),
   }),
   asalSekolah: z.string().trim().min(3, "Wajib diisi").max(100),
@@ -160,9 +160,8 @@ export function PsbForm() {
               <option value="" disabled>
                 Pilih program
               </option>
-              <option>MTs (kelas VII)</option>
-              <option>MA (kelas X)</option>
-              <option>Takhassus Tahfizh</option>
+              <option>Sekolah formal</option>
+              <option>Tanpa sekolah formal (fokus pondok)</option>
             </select>
           </Field>
           <Field label="Tempat lahir" htmlFor="tempatLahir" error={errors.tempatLahir?.message}>
@@ -193,7 +192,7 @@ export function PsbForm() {
       </fieldset>
 
       <div className="mt-8 flex flex-col gap-4 border-t border-border pt-6 sm:flex-row sm:items-center sm:justify-between">
-        <p className="text-sm text-muted-foreground">Biaya pendaftaran Rp 250.000 dibayarkan setelah konfirmasi panitia.</p>
+        <p className="text-sm text-muted-foreground">Biaya pendaftaran Rp 50.000, dibayarkan setelah konfirmasi panitia. Rincian lengkap ada di halaman Rincian Biaya Pendaftaran.</p>
         <button
           type="submit"
           disabled={isSubmitting}

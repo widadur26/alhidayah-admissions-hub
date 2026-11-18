@@ -2,7 +2,7 @@ import { useQuery } from "@tanstack/react-query";
 import { createServerFn } from "@tanstack/react-start";
 
 import { SITE } from "@/content/site";
-import { AGENDA, NOTICES, PARTNERS, PSB_INFO, TESTIMONIALS } from "@/content/site";
+import { CONTACT_PERSONS, AGENDA, NOTICES, PARTNERS, PSB_INFO, TESTIMONIALS } from "@/content/site";
 import { dbErrorMessage, getPool } from "@/lib/db";
 
 /**
@@ -14,6 +14,36 @@ import { dbErrorMessage, getPool } from "@/lib/db";
  */
 
 export type SocialSetting = { label: string; href: string };
+
+/** Satu contact person / narahubung pondok (putra atau putri). */
+export type ContactPersonSetting = {
+  /** Nama yang ditampilkan, mis. "Kang Imam". */
+  name: string;
+  /** Nomor untuk ditampilkan, mis. "+62 852-8198-8682". */
+  phone: string;
+  /** Nomor untuk tautan wa.me, tanpa "+" dan tanda hubung, mis. 6285281988682. */
+  whatsapp: string;
+};
+
+/** Ubah nomor tampilan menjadi format wa.me (08xx → 628xx). */
+export const waDigits = (phone: string): string => {
+  const digits = phone.replace(/\D/g, "");
+  if (digits.startsWith("0")) return `62${digits.slice(1)}`;
+  return digits;
+};
+
+const normalizePeople = (raw: unknown, fallback: ContactPersonSetting[]): ContactPersonSetting[] => {
+  const list = Array.isArray(raw) ? raw : [];
+  const people = list
+    .filter((p): p is Record<string, unknown> => !!p && typeof p === "object")
+    .map((p) => {
+      const phone = text(p["phone"], "");
+      const wa = text(p["whatsapp"], "");
+      return { name: text(p["name"], ""), phone, whatsapp: wa !== "" ? wa.replace(/\D/g, "") : waDigits(phone) };
+    })
+    .filter((p) => p.name !== "" || p.phone !== "");
+  return people.length > 0 ? people : fallback;
+};
 
 export type SiteSettings = {
   /** Nama lengkap lembaga (dipakai untuk teks SEO & alt logo). */
@@ -41,6 +71,8 @@ export type SiteSettings = {
   mapQuery: string;
   /** Tautan media sosial (label: Facebook, Instagram, TikTok, YouTube). */
   socials: SocialSetting[];
+  /** Narahubung pondok putra & putri (halaman Galeri & Kontak). */
+  contactPersons: { putra: ContactPersonSetting[]; putri: ContactPersonSetting[] };
   /** Teks kecil di atas nama pondok pada footer. */
   footerEyebrow: string;
   /** Paragraf deskripsi pada footer. */
@@ -67,8 +99,12 @@ export const DEFAULT_SETTINGS: SiteSettings = {
   office: SITE.office,
   mapQuery: SITE.mapQuery,
   socials: SITE.socials.map((s) => ({ label: s.label, href: s.href })),
+  contactPersons: {
+    putra: CONTACT_PERSONS.putra.map((p) => ({ name: p.name, phone: p.phone, whatsapp: p.whatsapp })),
+    putri: CONTACT_PERSONS.putri.map((p) => ({ name: p.name, phone: p.phone, whatsapp: p.whatsapp })),
+  },
   footerEyebrow: `Pondok Pesantren Kesugihan · Cilacap`,
-  footerDescription: `Lembaga pendidikan Islam berasrama di ${SITE.location}, sejak ${SITE.founded}. Memadukan kitab kuning, tahfizh Al-Qur'an, dan madrasah formal.`,
+  footerDescription: `Lembaga pendidikan Islam berasrama di ${SITE.location}. Memadukan sekolah formal, madrasah diniyah, dan pengajian kitab kuning.`,
   footerCopyright: "Yayasan Asasunnajaah Kesugihan. Hak cipta dilindungi.",
 };
 
@@ -94,6 +130,16 @@ export const normalizeSettings = (raw: unknown): SiteSettings => {
     office: text(d["office"], DEFAULT_SETTINGS.office),
     mapQuery: text(d["mapQuery"], DEFAULT_SETTINGS.mapQuery),
     socials: socials.length > 0 ? socials : DEFAULT_SETTINGS.socials,
+    contactPersons: {
+      putra: normalizePeople(
+        (d["contactPersons"] as Record<string, unknown> | undefined)?.["putra"],
+        DEFAULT_SETTINGS.contactPersons.putra,
+      ),
+      putri: normalizePeople(
+        (d["contactPersons"] as Record<string, unknown> | undefined)?.["putri"],
+        DEFAULT_SETTINGS.contactPersons.putri,
+      ),
+    },
     footerEyebrow: text(d["footerEyebrow"], DEFAULT_SETTINGS.footerEyebrow),
     footerDescription: text(d["footerDescription"], DEFAULT_SETTINGS.footerDescription),
     footerCopyright: text(d["footerCopyright"], DEFAULT_SETTINGS.footerCopyright),
@@ -265,16 +311,14 @@ const str = (v: unknown, fallback = ""): string => (typeof v === "string" ? v : 
 const DEFAULT_PSB = { year: PSB_INFO.year, quota: PSB_INFO.quota, waves: PSB_INFO.waves.map((w) => ({ ...w })) };
 
 export const DEFAULT_LISTS: SiteLists = {
-  stats: [
-    { icon: "users", value: "1.200+", label: "Santri mukim" },
-    { icon: "graduation-cap", value: "86", label: "Asatidz & musyrif" },
-    { icon: "book-open", value: "37", label: "Angkatan wisuda" },
-  ],
+  // Statistik angka (jumlah santri, asatidz, angkatan) belum tersedia dari pondok,
+  // jadi dikosongkan agar tidak menampilkan angka karangan.
+  stats: [],
   programs: [
-    { icon: "graduation-cap", title: "MTs (kelas VII–IX)", text: "Madrasah Tsanawiyah dengan Kurikulum Merdeka, pendalaman bahasa Arab–Inggris, dan tahsin harian.", meta: "Akreditasi A" },
-    { icon: "graduation-cap", title: "MA (kelas X–XII)", text: "Peminatan IPA, IPS, dan Keagamaan. Bimbingan melanjutkan ke PTN maupun LPTQ Kairo dan Timur Tengah.", meta: "Akreditasi A" },
-    { icon: "book-open", title: "Madrasah Diniyah", text: "Jenjang ula, wustha, dan ulya sore-hari. Kitab pokok: Mabadi Fiqih sampai Bulughul Maram.", meta: "3 jenjang" },
-    { icon: "scroll-text", title: "Tahfizh & Takhassus", text: "Tahfizh reguler 3 tahun untuk santri MTs/MA, atau Takhassus 30 juz penuh dengan ijazah sanad.", meta: "Kuota takhassus 40" },
+    { icon: "school", title: "Sekolah Formal", text: "Kegiatan sekolah formal bagi santri yang bersekolah, berlangsung pagi hari pukul 06.30–12.00.", meta: "06.30–12.00" },
+    { icon: "book-open", title: "Madrasah Diniyah", text: "Kegiatan diniyah setiap malam pukul 20.30–22.00, termasuk kelas aula/aulia dan Diniyah.", meta: "20.30–22.00" },
+    { icon: "scroll-text", title: "Ngaji Kitab Kuning", text: "Ngaji bandungan setelah tadarrus Subuh dan sore, serta sorogan ba'da Maghrib.", meta: "Bandungan & sorogan" },
+    { icon: "book-marked", title: "Tadarrus Al-Qur'an", text: "Tadarrus Al-Qur'an setiap pagi pukul 05.30–06.15 bersama ngaji bandungan kitab kuning.", meta: "05.30–06.15" },
   ],
   agenda: AGENDA.map((a) => ({ ...a })),
   notices: NOTICES.map((n) => ({ ...n })),
