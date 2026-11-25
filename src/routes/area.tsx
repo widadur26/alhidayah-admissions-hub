@@ -32,7 +32,10 @@ import {
 
 export const Route = createFileRoute("/area")({
   head: () => ({
-    meta: [{ title: "Area Wali & Alumni — Pondok Pesantren Asasunnajaah" }],
+    meta: [
+      { title: "Area Wali & Alumni — Pondok Pesantren Asasunnajaah" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
   }),
   component: AreaPage,
 });

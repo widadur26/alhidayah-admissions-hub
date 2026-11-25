@@ -8,7 +8,10 @@ import { getMember, loginMember, logoutMember } from "@/lib/auth";
 
 export const Route = createFileRoute("/masuk")({
   head: () => ({
-    meta: [{ title: "Masuk — Pondok Pesantren Asasunnajaah" }],
+    meta: [
+      { title: "Masuk — Pondok Pesantren Asasunnajaah" },
+      { name: "robots", content: "noindex,nofollow" },
+    ],
   }),
   component: MasukPage,
 });

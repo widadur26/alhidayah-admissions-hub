@@ -42,6 +42,7 @@ export const Route = createFileRoute("/$section/$slug")({
   head: ({ loaderData }) => {
     if (!loaderData) return { meta: [{ title: "Halaman tidak ditemukan — Asasunnajaah" }, { name: "robots", content: "noindex" }] };
     const title = `${loaderData.title} — Pondok Pesantren Asasunnajaah`;
+    const canonical = `https://pp-asasunnajaah.vercel.app/${loaderData.section}/${loaderData.slug}`;
     return {
       meta: [
         { title },
@@ -51,6 +52,7 @@ export const Route = createFileRoute("/$section/$slug")({
         { property: "og:type", content: "article" },
         { name: "twitter:card", content: "summary_large_image" },
       ],
+      links: [{ rel: "canonical", href: canonical }],
     };
   },
   component: ContentRoute,

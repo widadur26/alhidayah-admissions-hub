@@ -55,6 +55,9 @@ export const Route = createFileRoute("/")({
         }),
       },
     ],
+    links: [
+      { rel: "canonical", href: "https://pp-asasunnajaah.vercel.app/" },
+    ],
   }),
   component: Index,
 });
